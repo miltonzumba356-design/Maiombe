@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAIOMBE v2.0 — Plataforma de Mútuo Civil</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --obs:#07090C;--dk:#0B1910;--gold:#C9A84C;--g2:#DEB96A;--g3:#F2D898;
+  --em:#26B870;--em2:#178A4A;--em3:#0A5028;
+  --cr:#D43352;--cr2:#8A1825;--am:#E09020;--am2:#885800;
+  --sl:#7888A0;--sl2:#364858;--sl3:#182230;
+  --wp:#E5EBF2;--wm:#7888A0;--wk:#FFFFFF;
+  --pb:rgba(11,25,16,0.9);--pe:rgba(201,168,76,0.16);
+  --rg:14px;--rm:9px;--rs:5px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--obs);color:var(--wp);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(201,168,76,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,.03) 1px,transparent 1px);
+  background-size:54px 54px}
+/* SIDEBAR */
+.sb{position:fixed;left:0;top:0;bottom:0;width:264px;z-index:100;
+  background:linear-gradient(180deg,#0C1B0F,#060907);
+  border-right:1px solid var(--pe);display:flex;flex-direction:column;overflow-y:auto}
+.sb::-webkit-scrollbar{width:2px}.sb::-webkit-scrollbar-thumb{background:var(--sl2)}
+.sbl{padding:20px 18px 16px;border-bottom:1px solid var(--pe);flex-shrink:0}
+.slr{display:flex;align-items:center;gap:10px}
+.slico{width:40px;height:40px;background:linear-gradient(135deg,var(--gold),var(--g2));border-radius:9px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:var(--obs);
+  box-shadow:0 0 18px rgba(201,168,76,.28);flex-shrink:0}
+.slnm{font-size:14px;font-weight:700;color:var(--wk)}.slsb{font-size:7.5px;text-transform:uppercase;letter-spacing:2px;color:var(--gold)}
+.sver{margin-top:5px;font-size:7.5px;text-transform:uppercase;letter-spacing:1.5px;padding:2px 7px;border-radius:3px;
+  background:rgba(201,168,76,.1);color:var(--gold);border:1px solid rgba(201,168,76,.22);display:inline-block}
+.ssc{padding:16px 18px 5px;font-size:7.5px;text-transform:uppercase;letter-spacing:2.5px;color:var(--sl2);font-weight:700}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 14px 8px 18px;cursor:pointer;transition:all .15s;border-left:3px solid transparent}
+.ni:hover,.ni.on{background:linear-gradient(90deg,rgba(201,168,76,.09),transparent);border-left-color:var(--gold)}
+.ni.on .nic,.ni.on .nil{color:var(--g2)}
+.nic{font-size:13px;width:16px;text-align:center;color:var(--sl);transition:color .15s}
+.nil{font-size:11.5px;font-weight:500;color:var(--wm);transition:color .15s;flex:1}
+.nbg{background:var(--cr);color:#fff;font-size:7.5px;font-weight:700;padding:1px 5px;border-radius:7px}
+.nbg.g{background:var(--em3)}.nbg.a{background:var(--am2)}.nbg.b{background:#1A3870}
+.sbfoot{margin-top:auto;padding:12px 18px;border-top:1px solid var(--pe);display:flex;align-items:center;gap:8px;flex-shrink:0}
+.sua{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--em2));
+  display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--obs);flex-shrink:0}
+.sun{font-size:11px;font-weight:600;color:var(--wp)}.sur{font-size:9px;color:var(--sl)}
+/* MAIN LAYOUT */
+.mn{margin-left:264px;min-height:100vh;position:relative;z-index:1}
+.tb{position:sticky;top:0;z-index:90;display:flex;align-items:center;gap:12px;padding:13px 26px;
+  background:rgba(7,9,12,.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--pe)}
+.tbt{flex:1}.tbt h1{font-size:16px;font-weight:700;color:var(--wk)}
+.tbc{font-size:9.5px;color:var(--sl);margin-top:1px}
+.tba{display:flex;align-items:center;gap:9px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:var(--rs);
+  font-size:10.5px;font-weight:600;cursor:pointer;border:none;transition:all .18s;text-transform:uppercase;letter-spacing:.4px}
+.bg2{background:linear-gradient(135deg,var(--gold),var(--g2));color:var(--obs);box-shadow:0 3px 10px rgba(201,168,76,.32)}
+.bg2:hover{box-shadow:0 5px 16px rgba(201,168,76,.48);transform:translateY(-1px)}
+.bo2{background:var(--pb);color:var(--wp);border:1px solid var(--pe)}
+.bo2:hover{border-color:var(--gold);color:var(--gold)}
+.bd2{background:rgba(212,51,82,.12);color:var(--cr);border:1px solid rgba(212,51,82,.28)}
+.abell{width:32px;height:32px;border-radius:6px;background:var(--pb);border:1px solid var(--pe);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;position:relative}
+.abell .dot{position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;
+  background:var(--cr);border:2px solid var(--obs);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.35)}}
+/* CONTENT */
+.ct{padding:22px 26px}
+.sbar{display:flex;align-items:center;gap:6px;padding:8px 13px;background:rgba(10,26,16,.6);
+  border:1px solid rgba(38,184,112,.18);border-radius:var(--rs);margin-bottom:18px;font-size:9.5px;color:var(--em)}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--em);animation:pulse 2s infinite;flex-shrink:0}
+.sbar .ts{margin-left:auto;color:var(--sl)}
+.mtabs{display:flex;gap:0;flex-wrap:wrap;background:rgba(7,9,12,.8);border-radius:var(--rm);padding:3px;margin-bottom:16px;border:1px solid var(--pe)}
+.mt{padding:6px 11px;border-radius:4px;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.35px;color:var(--wm);cursor:pointer;transition:all .15s}
+.mt.on{background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.07));color:var(--gold);border:1px solid rgba(201,168,76,.28)}
+.mt:hover:not(.on){color:var(--wp)}
+/* KPI CARDS */
+.kg4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.kg6{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px}
+.kg3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.kg2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.kc{background:var(--pb);border:1px solid var(--pe);border-radius:var(--rg);padding:16px;
+  position:relative;overflow:hidden;transition:all .2s;backdrop-filter:blur(10px)}
+.kc:hover{border-color:rgba(201,168,76,.38);box-shadow:0 0 20px rgba(201,168,76,.18);transform:translateY(-2px)}
+.kc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kc.gold::before{background:linear-gradient(90deg,var(--gold),var(--g2))}
+.kc.em::before{background:linear-gradient(90deg,var(--em3),var(--em))}
+.kc.cr::before{background:linear-gradient(90deg,var(--cr2),var(--cr))}
+.kc.am::before{background:linear-gradient(90deg,var(--am2),var(--am))}
+.kc.bl::before{background:linear-gradient(90deg,#1A3870,#5B9CF6)}
+.kl{font-size:8.5px;text-transform:uppercase;letter-spacing:1.4px;color:var(--wm);margin-bottom:7px}
+.kv{font-size:24px;font-weight:800;color:var(--wk);line-height:1;margin-bottom:6px;letter-spacing:-1px}
+.kv .u{font-size:11px;font-weight:500;color:var(--wm);margin-left:3px}
+.kd{display:inline-flex;align-items:center;gap:3px;font-size:9.5px;font-weight:600;padding:2px 6px;border-radius:14px}
+.kd.up{background:rgba(38,184,112,.14);color:var(--em)}.kd.dn{background:rgba(212,51,82,.14);color:var(--cr)}
+.kd.nt{background:rgba(224,144,32,.14);color:var(--am)}
+/* PANEL */
+.pn{background:var(--pb);border:1px solid var(--pe);border-radius:var(--rg);backdrop-filter:blur(10px);overflow:hidden;margin-bottom:14px}
+.pnh{display:flex;align-items:center;gap:9px;padding:13px 16px;border-bottom:1px solid var(--pe)}
+.pnt{font-size:11px;font-weight:700;color:var(--wk);text-transform:uppercase;letter-spacing:.65px;flex:1}
+.ptg{font-size:7.5px;text-transform:uppercase;letter-spacing:1.4px;padding:2px 7px;border-radius:3px;
+  background:rgba(201,168,76,.12);color:var(--gold);border:1px solid rgba(201,168,76,.25)}
+.ptg.cr{background:rgba(212,51,82,.12);color:var(--cr);border-color:rgba(212,51,82,.25)}
+.ptg.em{background:rgba(38,184,112,.12);color:var(--em);border-color:rgba(38,184,112,.25)}
+.ptg.bl{background:rgba(91,156,246,.12);color:#5B9CF6;border-color:rgba(91,156,246,.25)}
+.ptg.am{background:rgba(224,144,32,.12);color:var(--am);border-color:rgba(224,144,32,.25)}
+/* GRIDS */
+.cgr{display:grid;grid-template-columns:1.4fr 1fr;gap:12px;margin-bottom:14px}
+.cgr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+.mg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+.mg2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.bg2g{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:14px}
+.cw{padding:16px}.cw canvas{max-height:220px}
+/* TABLE */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead tr{background:rgba(7,9,12,.6)}
+th{padding:8px 13px;font-size:7.5px;text-transform:uppercase;letter-spacing:1.4px;color:var(--wm);
+  font-weight:600;text-align:left;border-bottom:1px solid var(--pe);white-space:nowrap}
+td{padding:10px 13px;font-size:10.5px;color:var(--wp);border-bottom:1px solid rgba(201,168,76,.04);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(201,168,76,.025)}
+.tdp{font-weight:600;color:var(--wk)}.tdm{font-family:'Courier New',monospace;font-size:10.5px}
+/* BADGES */
+.rb{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:14px;font-size:8.5px;font-weight:700;text-transform:uppercase}
+.rb.low{background:rgba(38,184,112,.13);color:var(--em)}.rb.med{background:rgba(224,144,32,.13);color:var(--am)}
+.rb.hi{background:rgba(212,51,82,.13);color:var(--cr)}.rb.crit{background:rgba(212,51,82,.25);color:#FF2040;border:1px solid rgba(212,51,82,.45)}
+.rb.ok{background:rgba(38,184,112,.13);color:var(--em)}.rb.ft{background:rgba(91,156,246,.13);color:#5B9CF6}
+.rb.warn{background:rgba(224,144,32,.13);color:var(--am)}
+/* MISC */
+.pb{width:100%;height:4px;background:rgba(255,255,255,.06);border-radius:8px;overflow:hidden}
+.pf{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--gold),var(--em));transition:width .9s}
+.rmat{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:13px}
+.rc{padding:12px;border-radius:var(--rm);cursor:pointer;transition:all .15s}
+.rc:hover{transform:scale(1.02)}
+.rc.baixo{background:rgba(38,184,112,.09);border:1px solid rgba(38,184,112,.18)}
+.rc.medio{background:rgba(224,144,32,.09);border:1px solid rgba(224,144,32,.18)}
+.rc.alto{background:rgba(212,51,82,.09);border:1px solid rgba(212,51,82,.18)}
+.rc.critico{background:rgba(212,51,82,.18);border:1px solid rgba(212,51,82,.44);animation:rpulse 3s infinite}
+@keyframes rpulse{0%,100%{box-shadow:none}50%{box-shadow:0 0 12px rgba(212,51,82,.28)}}
+.rcl{font-size:7.5px;text-transform:uppercase;letter-spacing:1.4px;color:var(--wm)}
+.rcn{font-size:28px;font-weight:800;line-height:1;margin:4px 0 3px}
+.rcs{font-size:8.5px;color:var(--wm)}
+.rc.baixo .rcn{color:var(--em)}.rc.medio .rcn{color:var(--am)}.rc.alto .rcn{color:var(--cr)}.rc.critico .rcn{color:#FF2040}
+.af{max-height:240px;overflow-y:auto}
+.ai{display:flex;gap:9px;padding:9px 14px;border-bottom:1px solid rgba(201,168,76,.04);transition:.12s;cursor:pointer}
+.ai:hover{background:rgba(201,168,76,.025)}.ai:last-child{border-bottom:none}
+.aind{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.aind.r{background:var(--cr);box-shadow:0 0 4px var(--cr)}.aind.a{background:var(--am)}.aind.g{background:var(--em)}.aind.b{background:#5B9CF6}
+.atit{font-size:10.5px;font-weight:600;color:var(--wk)}.amet{font-size:8.5px;color:var(--wm);margin-top:1px}
+.ats{font-size:8.5px;color:var(--sl2);white-space:nowrap}
+.fl{padding:9px 13px;display:flex;flex-direction:column;gap:7px}
+.fi{display:flex;align-items:center;gap:9px;padding:9px;background:rgba(7,9,12,.4);
+  border:1px solid rgba(201,168,76,.06);border-radius:var(--rm);transition:.15s}
+.fi:hover{border-color:rgba(201,168,76,.2)}
+.fico{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.fico.bk{background:rgba(201,168,76,.13)}.fico.eq{background:rgba(38,184,112,.13)}.fico.pr{background:rgba(224,144,32,.13)}
+.fin{flex:1}.fnm{font-size:10.5px;font-weight:600;color:var(--wk)}.fdt{font-size:8.5px;color:var(--wm);margin-top:1px}
+.fam{text-align:right}.fav{font-size:11px;font-weight:700;color:var(--g2);font-family:monospace}.fap{font-size:8.5px;color:var(--wm)}
+.pgd{padding:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.pi{padding:7px 8px;background:rgba(7,9,12,.5);border:1px solid rgba(201,168,76,.06);border-radius:4px;transition:.15s;cursor:pointer}
+.pi:hover{border-color:var(--gold)}
+.pin{font-size:8.5px;font-weight:600;color:var(--wp)}.piv{font-size:10.5px;font-weight:700;color:var(--gold);font-family:monospace;margin-top:2px}
+.pib{margin-top:4px;height:2px;background:rgba(255,255,255,.05);border-radius:6px;overflow:hidden}
+.pibf{height:100%;background:linear-gradient(90deg,var(--gold),var(--em))}
+.sring{display:flex;align-items:center;justify-content:center;padding:16px}
+.sri{position:relative;width:140px;height:140px}
+.sri svg{transform:rotate(-90deg)}
+.srl{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.srv{font-size:32px;font-weight:900;color:var(--gold);line-height:1}.srs{font-size:8.5px;color:var(--wm);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.ag{padding:12px;display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.am2{padding:8px;background:rgba(7,9,12,.5);border:1px solid rgba(201,168,76,.06);border-radius:4px;text-align:center;cursor:pointer;transition:.15s}
+.am2:hover,.am2.act{border-color:var(--gold);background:rgba(201,168,76,.08)}
+.am2.ovd{border-color:var(--cr);background:rgba(212,51,82,.06)}
+.am2.paid{border-color:var(--em3);background:rgba(38,184,112,.04)}
+.amm{font-size:7.5px;color:var(--wm);text-transform:uppercase;letter-spacing:1px}
+.amv{font-size:10px;font-weight:700;color:var(--gold);font-family:monospace;margin-top:2px}
+.ams{font-size:7.5px;margin-top:2px}
+.tabbar{display:flex;background:rgba(7,9,12,.6);border-bottom:1px solid var(--pe)}
+.tabbt{padding:9px 16px;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
+  color:var(--wm);cursor:pointer;border-bottom:2px solid transparent;transition:.15s;white-space:nowrap}
+.tabbt:hover{color:var(--wp)}.tabbt.on{color:var(--gold);border-bottom-color:var(--gold)}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-thumb{background:var(--sl3);border-radius:6px}
+/* TITLE BADGES */
+.tbt-OT{display:inline-flex;align-items:center;padding:2px 7px;border-radius:3px;font-size:8.5px;font-weight:700;background:rgba(201,168,76,.13);color:var(--gold);border:1px solid rgba(201,168,76,.28)}
+.tbt-BT{display:inline-flex;align-items:center;padding:2px 7px;border-radius:3px;font-size:8.5px;font-weight:700;background:rgba(91,156,246,.13);color:#5B9CF6;border:1px solid rgba(91,156,246,.28)}
+.tbt-cash{display:inline-flex;align-items:center;padding:2px 7px;border-radius:3px;font-size:8.5px;font-weight:700;background:rgba(38,184,112,.13);color:var(--em);border:1px solid rgba(38,184,112,.28)}
+.tbt-mix{display:inline-flex;align-items:center;padding:2px 7px;border-radius:3px;font-size:8.5px;font-weight:700;background:rgba(156,100,200,.13);color:#9C64C8;border:1px solid rgba(156,100,200,.28)}
+/* FORM */
+.fs{background:rgba(7,9,12,.5);border:1px solid var(--pe);border-radius:var(--rm);padding:16px;margin-bottom:12px}
+.fst{font-size:9.5px;text-transform:uppercase;letter-spacing:1.8px;color:var(--gold);font-weight:700;margin-bottom:12px;
+  border-bottom:1px solid rgba(201,168,76,.14);padding-bottom:7px}
+.fg{display:grid;gap:9px}
+.fg2{grid-template-columns:1fr 1fr}.fg3{grid-template-columns:1fr 1fr 1fr}
+.fld label{display:block;font-size:8px;text-transform:uppercase;letter-spacing:1.2px;color:var(--wm);margin-bottom:4px;font-weight:600}
+.fld input,.fld select,.fld textarea{width:100%;background:rgba(7,9,12,.7);border:1px solid rgba(201,168,76,.18);
+  border-radius:var(--rs);padding:7px 10px;color:var(--wp);font-size:11px;font-family:'Segoe UI',sans-serif;outline:none;transition:.15s}
+.fld input:focus,.fld textarea:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,168,76,.1)}
+.fld select{cursor:pointer;appearance:none;padding-right:24px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%23C9A84C' d='M5 7L1 3h8z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 8px center}
+.fld select option{background:#0C1B10;color:var(--wp)}
+.fld textarea{min-height:72px;resize:vertical}
+.mck{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.mci{display:flex;align-items:center;gap:4px;padding:3px 9px;background:rgba(201,168,76,.05);
+  border:1px solid rgba(201,168,76,.13);border-radius:3px;cursor:pointer;transition:.13s;font-size:9.5px;color:var(--wm)}
+.mci:hover,.mci.on{background:rgba(201,168,76,.16);border-color:var(--gold);color:var(--gold)}
+.mci input{display:none}
+/* CONTRACT PREVIEW */
+.cprev{background:rgba(7,9,12,.82);border:1px solid rgba(201,168,76,.11);border-radius:var(--rm);
+  padding:18px;font-size:10.5px;line-height:1.75;color:var(--wp)}
+.cprev h4{color:var(--gold);font-size:9.5px;text-transform:uppercase;letter-spacing:1.4px;margin:13px 0 5px;font-weight:700}
+.cprev h4:first-child{margin-top:0}
+.cprev p{color:#B8C8D8;margin-bottom:7px}
+.fill{color:var(--g2);font-weight:600;font-style:italic}
+/* CONTRACT TYPE */
+.ctg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.ctc{padding:16px;border:2px solid var(--pe);border-radius:var(--rg);cursor:pointer;transition:all .18s;text-align:center}
+.ctc:hover{border-color:rgba(201,168,76,.38);background:rgba(201,168,76,.03)}
+.ctc.on{border-color:var(--gold);background:rgba(201,168,76,.09);box-shadow:0 0 18px rgba(201,168,76,.14)}
+.ctci{font-size:28px;margin-bottom:9px}.ctnm{font-size:12.5px;font-weight:700;color:var(--wk);margin-bottom:4px}
+.ctds{font-size:9.5px;color:var(--wm);line-height:1.5}
+/* PASSIVO */
+.pi2{background:rgba(7,9,12,.5);border:1px solid rgba(201,168,76,.09);border-radius:var(--rm);padding:13px;margin-bottom:7px;transition:.15s}
+.pi2:hover{border-color:rgba(201,168,76,.28)}
+.pih{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.piico{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.pinm{font-size:11.5px;font-weight:600;color:var(--wk);flex:1}
+.pival{font-size:12.5px;font-weight:700;color:var(--g2);font-family:monospace}
+.pimt{display:flex;gap:7px;flex-wrap:wrap}
+.pimt span{font-size:8.5px;color:var(--wm);background:rgba(201,168,76,.06);padding:2px 6px;border-radius:3px}
+.pibar{margin-top:9px}.pibrl{display:flex;justify-content:space-between;font-size:8.5px;color:var(--wm);margin-bottom:3px}
+/* CLIENT CARDS */
+.cc{background:rgba(7,9,12,.5);border:1px solid rgba(201,168,76,.09);border-radius:var(--rm);padding:13px;transition:.15s;cursor:pointer}
+.cc:hover{border-color:rgba(201,168,76,.28);box-shadow:0 0 14px rgba(201,168,76,.09)}
+.cch{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.cca{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--obs);flex-shrink:0}
+.ccn{font-size:11.5px;font-weight:700;color:var(--wk)}.cct{font-size:8.5px;color:var(--wm)}
+.ccs{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.ccsv{text-align:center;padding:5px;background:rgba(201,168,76,.04);border-radius:4px}
+.ccsv .v{font-size:12.5px;font-weight:700;color:var(--gold)}.ccsv .l{font-size:7.5px;color:var(--wm);text-transform:uppercase}
+/* MISC */
+.spark{display:inline-flex;align-items:flex-end;gap:2px;height:16px;margin-left:5px}
+.spk{width:3px;border-radius:1px 1px 0 0;background:var(--em);opacity:.6}
+.spk:last-child{opacity:1}
+.ntbox{padding:13px;background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.18);border-radius:var(--rm);margin-bottom:14px}
+.ntttl{font-size:9.5px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1.4px;margin-bottom:5px}
+.nttxt{font-size:10.5px;color:var(--wp);line-height:1.6}
+</style>
+</head>
+<body>
+<aside class="sb">
+  <div class="sbl"><div class="slr"><div class="slico">M</div><div><div class="slnm">MAIOMBE</div><div class="slsb">Capital &amp; Credit Intelligence</div></div></div><div class="sver">v2.0 &middot; Gestão de Carteira &middot; Angola</div></div>
+  <div class="ssc">Núcleo Operacional</div>
+  <div class="ni on" onclick="sw('dashboard',this)"><span class="nic">&#9672;</span><span class="nil">Dashboard Executivo</span></div>
+  <div class="ni" onclick="sw('carteira',this)"><span class="nic">&#9673;</span><span class="nil">Carteira de Crédito</span><span class="nbg">24</span></div>
+  <div class="ni" onclick="sw('elaboracao',this)"><span class="nic">&#9997;</span><span class="nil">Elaboração de Contratos</span><span class="nbg a">3</span></div>
+  <div class="ni" onclick="sw('contratos',this)"><span class="nic">&#9633;</span><span class="nil">Gestão de Contratos</span><span class="nbg g">2</span></div>
+  <div class="ni" onclick="sw('comissoes',this)"><span class="nic">%</span><span class="nil">Taxas, Juros &amp; Comissões</span></div>
+  <div class="ssc">Gestão do Passivo</div>
+  <div class="ni" onclick="sw('passivo',this)"><span class="nic">&#11015;</span><span class="nil">Gestão do Passivo</span><span class="nbg">4</span></div>
+  <div class="ni" onclick="sw('fontes',this)"><span class="nic">&#9635;</span><span class="nil">Fontes de Financiamento</span></div>
+  <div class="ssc">Análise &amp; Risco</div>
+  <div class="ni" onclick="sw('risco',this)"><span class="nic">&#11041;</span><span class="nil">Gestão de Risco</span><span class="nbg">2</span></div>
+  <div class="ni" onclick="sw('garantias',this)"><span class="nic">&#9670;</span><span class="nil">Garantias</span></div>
+  <div class="ni" onclick="sw('cobranca',this)"><span class="nic">&#8635;</span><span class="nil">Cobrança &amp; Recuperação</span></div>
+  <div class="ssc">Entidades &amp; Crédito</div>
+  <div class="ni" onclick="sw('clientes',this)"><span class="nic">&#9636;</span><span class="nil">Crédito Cedido — Clientes</span><span class="nbg">67</span></div>
+  <div class="ni" onclick="sw('projetos',this)"><span class="nic">&#9638;</span><span class="nil">Projetos Financiados</span></div>
+  <div class="ni" onclick="sw('titulos',this)"><span class="nic">&#128220;</span><span class="nil">Títulos da Dívida Pública</span><span class="nbg b">4</span></div>
+  <div class="ssc">Inteligência</div>
+  <div class="ni" onclick="sw('bi',this)"><span class="nic">&#9677;</span><span class="nil">Business Intelligence</span></div>
+  <div class="ni" onclick="sw('alertas',this)"><span class="nic">&#9678;</span><span class="nil">Alertas &amp; Notificações</span><span class="nbg">9</span></div>
+  <div class="sbfoot"><div class="sua">DG</div><div><div class="sun">Dir. Geral</div><div class="sur">Administrador &middot; Maiombe</div></div></div>
+</aside>
+<main class="mn">
+  <div class="tb">
+    <div class="tbt"><h1 id="ptitle">Dashboard Executivo</h1><div class="tbc" id="pbc">MAIOMBE / Painel de Controlo &middot; Jun 2026</div></div>
+    <div class="tba"><button class="btn bo2">&#8681; Exportar</button><button class="btn bg2" onclick="sw('elaboracao',null)">+ Nova Operação</button><div class="abell">&#128276;<div class="dot"></div></div></div>
+  </div>
+  <div class="ct">
+    <div class="sbar"><div class="sdot"></div>Sistema Operacional &middot; Plataforma de Gestão de Carteira e Risco &middot; Motor de Análise activo &middot; Assinatura Digital certificada<div class="ts" id="clk">16/06/2026 &middot; 14:47:22</div></div>
+    <div class="mtabs">
+      <div class="mt on" onclick="sw('dashboard',this)">Dashboard</div>
+      <div class="mt" onclick="sw('elaboracao',this)">&#9997; Contratos</div>
+      <div class="mt" onclick="sw('passivo',this)">Passivo</div>
+      <div class="mt" onclick="sw('clientes',this)">Crédito Clientes</div>
+      <div class="mt" onclick="sw('comissoes',this)">Taxas &amp; Juros</div>
+      <div class="mt" onclick="sw('titulos',this)">OT &amp; BT</div>
+      <div class="mt" onclick="sw('bi',this)">BI Analytics</div>
+    </div>
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <div id="mod-dashboard">
+      <div class="kg4">
+        <div class="kc gold"><div class="kl">Capital Captado</div><div class="kv">47.8<span class="u">Mil M Kz</span></div><span class="kd up">+12.4%</span></div>
+        <div class="kc em"><div class="kl">Capital Aplicado</div><div class="kv">39.2<span class="u">Mil M Kz</span></div><span class="kd up">util. 82%</span></div>
+        <div class="kc cr"><div class="kl">Crédito Vencido</div><div class="kv">3.1<span class="u">Mil M Kz</span></div><span class="kd dn">NPL 7.9%</span></div>
+        <div class="kc am"><div class="kl">Rentabilidade Líquida</div><div class="kv">14.2<span class="u">%</span></div><span class="kd up">+1.8pp</span></div>
+      </div>
+      <div class="kg6">
+        <div class="kc" style="padding:12px"><div class="kl" style="font-size:8px">Contratos</div><div class="kv" style="font-size:17px">24</div><div style="font-size:8.5px;color:var(--wm)">+3 este mês</div></div>
+        <div class="kc" style="padding:12px"><div class="kl" style="font-size:8px">Clientes</div><div class="kv" style="font-size:17px">67</div><div style="font-size:8.5px;color:var(--wm)">18 ent. públicas</div></div>
+        <div class="kc" style="padding:12px"><div class="kl" style="font-size:8px">Recuperação</div><div class="kv" style="font-size:17px">92.1%</div><div style="font-size:8.5px;color:var(--em)">+3.2pp</div></div>
+        <div class="kc" style="padding:12px"><div class="kl" style="font-size:8px">Garantias</div><div class="kv" style="font-size:17px">31</div><div style="font-size:8.5px;color:var(--wm)">cobertura 118%</div></div>
+        <div class="kc" style="padding:12px"><div class="kl" style="font-size:8px">Venc. 30d</div><div class="kv" style="font-size:17px;color:var(--am)">6</div><div style="font-size:8.5px;color:var(--am)">2 em risco</div></div>
+        <div class="kc" style="padding:12px"><div class="kl" style="font-size:8px">Health Score</div><div class="kv" style="font-size:17px">72<span style="font-size:10px">/100</span></div><div style="font-size:8.5px;color:var(--wm)">médio-baixo</div></div>
+      </div>
+      <div class="cgr">
+        <div class="pn"><div class="pnh"><div class="pnt">Evolução da Carteira 2025–2026</div><span class="ptg">12 Meses</span></div><div class="cw"><canvas id="ch-port"></canvas></div></div>
+        <div class="pn"><div class="pnh"><div class="pnt">Composição do Crédito</div></div><div class="cw" style="display:flex;align-items:center;justify-content:center"><canvas id="ch-comp" style="max-height:195px;max-width:195px"></canvas></div></div>
+      </div>
+      <div class="mg3">
+        <div class="pn"><div class="pnh"><div class="pnt">Matriz de Risco</div><span class="ptg">Análise de Risco</span></div>
+          <div class="rmat">
+            <div class="rc baixo"><div class="rcl">Baixo</div><div class="rcn">11</div><div class="rcs">28.1 Mil M Kz</div></div>
+            <div class="rc medio"><div class="rcl">Médio</div><div class="rcn">8</div><div class="rcs">7.4 Mil M Kz</div></div>
+            <div class="rc alto"><div class="rcl">Alto</div><div class="rcn">3</div><div class="rcs">2.8 Mil M Kz</div></div>
+            <div class="rc critico"><div class="rcl">Crítico</div><div class="rcn">2</div><div class="rcs">0.9 Mil M Kz</div></div>
+          </div>
+        </div>
+        <div class="pn"><div class="pnh"><div class="pnt">Fontes — Resumo</div><span class="ptg em">Activas</span></div>
+          <div class="fl">
+            <div class="fi"><div class="fico bk">🏦</div><div class="fin"><div class="fnm">BFA</div><div class="fdt">14.5% a.a. · 5 anos</div></div><div class="fam"><div class="fav">18.5M</div><div class="fap">38.7%</div></div></div>
+            <div class="fi"><div class="fico eq">📊</div><div class="fin"><div class="fnm">Alpinea</div><div class="fdt">Capital Social · 0%</div></div><div class="fam"><div class="fav">16.2M</div><div class="fap">33.9%</div></div></div>
+            <div class="fi"><div class="fico pr">💼</div><div class="fin"><div class="fnm">Invest. Privados</div><div class="fdt">Debêntures 16%</div></div><div class="fam"><div class="fav">9.1M</div><div class="fap">19.0%</div></div></div>
+            <div class="fi"><div class="fico bk">🤝</div><div class="fin"><div class="fnm">Parceiros</div><div class="fdt">Co-financiamento</div></div><div class="fam"><div class="fav">4.0M</div><div class="fap">8.4%</div></div></div>
+          </div>
+        </div>
+        <div class="pn"><div class="pnh"><div class="pnt">Alertas</div><span class="ptg cr">9 Activos</span></div>
+          <div class="af">
+            <div class="ai"><div class="aind r"></div><div style="flex:1"><div class="atit">Vencimento 3d — Gov. Cuanza Sul</div><div class="amet">MAI-2025-038 · 850M Kz · Risco Alto</div></div><div class="ats">14:32</div></div>
+            <div class="ai"><div class="aind r"></div><div style="flex:1"><div class="atit">Incumprimento — Emp. Pública XYZ</div><div class="amet">Prestação Jul/26 não liquidada</div></div><div class="ats">11:15</div></div>
+            <div class="ai"><div class="aind a"></div><div style="flex:1"><div class="atit">OT recebidas — pagamento Estado</div><div class="amet">MAI-2025-012 · OT 430M Kz · 5 anos</div></div><div class="ats">09:50</div></div>
+            <div class="ai"><div class="aind a"></div><div style="flex:1"><div class="atit">Garantia a expirar — 30 dias</div><div class="amet">MAI-2023-012 · Renovação pendente</div></div><div class="ats">09:44</div></div>
+            <div class="ai"><div class="aind g"></div><div style="flex:1"><div class="atit">Contrato assinado — pronto desembolso</div><div class="amet">MAI-2026-024 · 1.2 Mil M Kz</div></div><div class="ats">Ontem</div></div>
+            <div class="ai"><div class="aind b"></div><div style="flex:1"><div class="atit">Nova linha BFA registada</div><div class="amet">5.000M Kz · 14.5% · Registo manual</div></div><div class="ats">15 Jun</div></div>
+            <div class="ai"><div class="aind g"></div><div style="flex:1"><div class="atit">Liquidação — Gov. Prov. Malanje</div><div class="amet">MAI-2025-019 · 430M Kz · Quitado</div></div><div class="ats">14 Jun</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="bg2g">
+        <div class="pn">
+          <div class="pnh"><div class="pnt">Carteira de Crédito — Contratos Activos</div><button class="btn bo2" style="padding:4px 9px;font-size:8.5px">Ver Todos ›</button></div>
+          <div class="tabbar"><div class="tabbt on">Todos (24)</div><div class="tabbt">Em Curso (19)</div><div class="tabbt">Vencidos (3)</div><div class="tabbt">Liquidados (2)</div></div>
+          <div class="tw"><table>
+            <thead><tr><th>Referência</th><th>Mutuário</th><th>Tipo</th><th>Valor Kz</th><th>Taxa</th><th>Próx. Venc.</th><th>Reembolso</th><th>Exec.</th><th>Risco</th></tr></thead>
+            <tbody>
+              <tr><td class="tdm tdp">MAI-2026-024</td><td>Gov. Prov. Luanda</td><td style="font-size:8.5px;color:var(--wm)">Gov. Prov.</td><td class="tdm">1.200.000.000</td><td class="tdm">15.5%</td><td style="color:var(--am)">Jul 2026</td><td><span class="tbt-cash">Cash</span></td><td><div class="pb" style="width:65px"><div class="pf" style="width:35%"></div></div><span style="font-size:8.5px"> 35%</span></td><td><span class="rb low">Baixo</span></td></tr>
+              <tr><td class="tdm tdp">MAI-2026-021</td><td>Emp. Nacional Energia</td><td style="font-size:8.5px;color:var(--wm)">Emp. Pública</td><td class="tdm">3.500.000.000</td><td class="tdm">16.0%</td><td>Ago 2026</td><td><span class="tbt-OT">OT 5a</span></td><td><div class="pb" style="width:65px"><div class="pf" style="width:62%"></div></div><span style="font-size:8.5px"> 62%</span></td><td><span class="rb med">Médio</span></td></tr>
+              <tr><td class="tdm tdp">MAI-2025-038</td><td>Gov. Prov. Cuanza Sul</td><td style="font-size:8.5px;color:var(--wm)">Gov. Prov.</td><td class="tdm">850.000.000</td><td class="tdm">14.8%</td><td style="color:var(--cr)">19 Jun ⚠</td><td><span class="tbt-mix">OT+Cash</span></td><td><div class="pb" style="width:65px"><div class="pf" style="width:88%;background:var(--cr)"></div></div><span style="font-size:8.5px;color:var(--cr)"> 88%</span></td><td><span class="rb hi">Alto</span></td></tr>
+              <tr><td class="tdm tdp">MAI-2025-031</td><td>Construtora Atlântico LDA</td><td style="font-size:8.5px;color:var(--wm)">Emp. Privada</td><td class="tdm">2.100.000.000</td><td class="tdm">17.5%</td><td>Set 2026</td><td><span class="tbt-cash">Cash</span></td><td><div class="pb" style="width:65px"><div class="pf" style="width:45%"></div></div><span style="font-size:8.5px"> 45%</span></td><td><span class="rb low">Baixo</span></td></tr>
+              <tr><td class="tdm tdp">MAI-2024-018</td><td>Ministério da Saúde</td><td style="font-size:8.5px;color:var(--wm)">Ministério</td><td class="tdm">5.800.000.000</td><td class="tdm">13.9%</td><td>Dez 2026</td><td><span class="tbt-BT">BT 91d</span></td><td><div class="pb" style="width:65px"><div class="pf" style="width:71%"></div></div><span style="font-size:8.5px"> 71%</span></td><td><span class="rb low">Baixo</span></td></tr>
+              <tr><td class="tdm tdp">MAI-2024-009</td><td>Adm. Mun. Cacuaco</td><td style="font-size:8.5px;color:var(--wm)">Adm. Mun.</td><td class="tdm">480.000.000</td><td class="tdm">15.0%</td><td style="color:var(--cr)">VENCIDO ⚠</td><td><span class="tbt-cash">Cash</span></td><td><div class="pb" style="width:65px"><div class="pf" style="width:100%;background:var(--cr)"></div></div><span style="font-size:8.5px;color:var(--cr)"> 100%</span></td><td><span class="rb crit">Crítico</span></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="pn"><div class="pnh"><div class="pnt">Health Score</div></div>
+            <div class="sring"><div class="sri">
+              <svg viewBox="0 0 140 140" width="140" height="140"><circle cx="70" cy="70" r="58" fill="none" stroke="rgba(201,168,76,.09)" stroke-width="10"/><circle cx="70" cy="70" r="58" fill="none" stroke="url(#sg)" stroke-width="10" stroke-dasharray="364" stroke-dashoffset="100" stroke-linecap="round"/>
+              <defs><linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--gold)"/><stop offset="100%" style="stop-color:var(--em)"/></linearGradient></defs></svg>
+              <div class="srl"><div class="srv">72</div><div class="srs">Health Score</div></div>
+            </div></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:0 12px 12px">
+              <div style="text-align:center;padding:6px;background:rgba(7,9,12,.5);border-radius:4px"><div style="font-size:8.5px;color:var(--wm)">Pagamento</div><div style="font-size:14px;font-weight:700;color:var(--em)">92.1%</div></div>
+              <div style="text-align:center;padding:6px;background:rgba(7,9,12,.5);border-radius:4px"><div style="font-size:8.5px;color:var(--wm)">Cobertura</div><div style="font-size:14px;font-weight:700;color:var(--gold)">118%</div></div>
+              <div style="text-align:center;padding:6px;background:rgba(7,9,12,.5);border-radius:4px"><div style="font-size:8.5px;color:var(--wm)">NPL</div><div style="font-size:14px;font-weight:700;color:var(--am)">7.9%</div></div>
+              <div style="text-align:center;padding:6px;background:rgba(7,9,12,.5);border-radius:4px"><div style="font-size:8.5px;color:var(--wm)">Spread</div><div style="font-size:14px;font-weight:700;color:var(--gold)">+0.6pp</div></div>
+            </div>
+          </div>
+          <div class="pn"><div class="pnh"><div class="pnt">Exposição Provincial</div></div>
+            <div class="pgd">
+              <div class="pi"><div class="pin">Luanda</div><div class="piv">14.2M</div><div class="pib"><div class="pibf" style="width:100%"></div></div></div>
+              <div class="pi"><div class="pin">Cuanza Sul</div><div class="piv">6.8M</div><div class="pib"><div class="pibf" style="width:48%"></div></div></div>
+              <div class="pi"><div class="pin">Malanje</div><div class="piv">4.3M</div><div class="pib"><div class="pibf" style="width:30%"></div></div></div>
+              <div class="pi"><div class="pin">Benguela</div><div class="piv">3.9M</div><div class="pib"><div class="pibf" style="width:27%"></div></div></div>
+              <div class="pi"><div class="pin">Huambo</div><div class="piv">3.1M</div><div class="pib"><div class="pibf" style="width:22%"></div></div></div>
+              <div class="pi"><div class="pin">Cabinda</div><div class="piv">2.8M</div><div class="pib"><div class="pibf" style="width:20%"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pn"><div class="pnh"><div class="pnt">Cronograma Consolidado 2026</div><span class="ptg">Activo + Passivo</span></div>
+        <div class="ag">
+          <div class="am2 paid"><div class="amm">Jan</div><div class="amv">1.24M</div><div class="ams" style="color:var(--em)">Recebido</div></div>
+          <div class="am2 paid"><div class="amm">Fev</div><div class="amv">980M</div><div class="ams" style="color:var(--em)">Recebido</div></div>
+          <div class="am2 paid"><div class="amm">Mar</div><div class="amv">1.56M</div><div class="ams" style="color:var(--em)">Recebido</div></div>
+          <div class="am2 paid"><div class="amm">Abr</div><div class="amv">2.10M</div><div class="ams" style="color:var(--em)">Recebido</div></div>
+          <div class="am2 paid"><div class="amm">Mai</div><div class="amv">1.78M</div><div class="ams" style="color:var(--em)">Recebido</div></div>
+          <div class="am2 act"><div class="amm">Jun</div><div class="amv">2.34M</div><div class="ams" style="color:var(--am)">Em Curso</div></div>
+          <div class="am2 ovd"><div class="amm">Jul</div><div class="amv">1.92M</div><div class="ams" style="color:var(--cr)">Risco</div></div>
+          <div class="am2"><div class="amm">Ago</div><div class="amv">3.45M</div><div class="ams" style="color:var(--wm)">Previsto</div></div>
+          <div class="am2"><div class="amm">Set</div><div class="amv">2.80M</div><div class="ams" style="color:var(--wm)">Previsto</div></div>
+          <div class="am2"><div class="amm">Out</div><div class="amv">1.65M</div><div class="ams" style="color:var(--wm)">Previsto</div></div>
+          <div class="am2"><div class="amm">Nov</div><div class="amv">2.20M</div><div class="ams" style="color:var(--wm)">Previsto</div></div>
+          <div class="am2"><div class="amm">Dez</div><div class="amv">4.10M</div><div class="ams" style="color:var(--wm)">Previsto</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ELABORAÇÃO CONTRATOS ═══ -->
+    <div id="mod-elaboracao" style="display:none">
+      <div class="ntbox">
+        <div class="ntttl">Regime Jurídico Aplicável</div>
+        <div class="nttxt">Os contratos são celebrados ao abrigo dos artigos 1142.º e seguintes do Código Civil Angolano. Para valores acima de UCF 3.000 em Kwanzas é obrigatória escritura pública (art.º 1143.º CC, Lei n.º 9/11 de 16 de Março).</div>
+      </div>
+      <div class="pn">
+        <div class="pnh"><div class="pnt">Seleccionar Modelo de Contrato</div><span class="ptg">3 Minutas Standard · Condições Gerais Pré-Estabelecidas · Direito Civil Angolano</span></div>
+        <div style="padding:16px">
+          <div class="ctg">
+            <div class="ctc on" onclick="selType(this,'pub')">
+              <div class="ctci">🏛️</div><div class="ctnm">Modelo A — Financiamento Público</div>
+              <div class="ctds">Estado, Ministérios, Gov. Provinciais, Adm. Municipais, E.P. e domínio público. Prevê reembolso em OT, BT, cash ou misto. Cláusula de imunidade soberana. Referência ao PAE 2025 (Dec. Pres. 54/25) e Dec. Exec. 385/25.</div>
+            </div>
+            <div class="ctc" onclick="selType(this,'priv')">
+              <div class="ctci">🏢</div><div class="ctnm">Modelo B — Empréstimo a Privado</div>
+              <div class="ctds">Empresas privadas (LDA, SA, Unipessoal) e particulares (pessoas singulares). Reembolso em numerário. Garantias reais e pessoais. Condições de taxa e prazo totalmente livres — no pleno exercício da autonomia privada.</div>
+            </div>
+            <div class="ctc" onclick="selType(this,'proj')">
+              <div class="ctci">🏗️</div><div class="ctnm">Modelo C — Financiamento de Projecto</div>
+              <div class="ctds">Desembolsos faseados condicionados à execução de cada fase. Adequado a obras, infraestrutura, concessões e PPP. Pagamento ligado a vistorias técnicas e relatórios de progresso aprovados.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:14px">
+        <!-- FORMULÁRIO -->
+        <div>
+          <div class="fs"><div class="fst">I — Identificação das Partes</div>
+            <div class="fg fg2">
+              <div class="fld"><label>Mutuante</label><input type="text" value="MAIOMBE — Capital &amp; Credit, Lda." readonly style="opacity:.65"></div>
+              <div class="fld"><label>NIF Mutuante</label><input type="text" value="5000056146" readonly style="opacity:.65"></div>
+              <div class="fld"><label>Designação Completa do Mutuário</label><input type="text" placeholder="Ex: Governo Provincial de Luanda"></div>
+              <div class="fld"><label>NIF do Mutuário</label><input type="text" placeholder="Ex: 5000012345"></div>
+              <div class="fld"><label>Tipo de Entidade Mutuária</label>
+                <select>
+                  <option>Governo Central / Executivo</option><option>Ministério / Sec. de Estado</option>
+                  <option selected>Governo Provincial</option><option>Administração Municipal</option>
+                  <option>Empresa Pública (E.P.)</option><option>Empresa de Domínio Público</option>
+                  <option>Empresa Privada (LDA / SA)</option><option>Particular / Pessoa Singular</option>
+                  <option>Entidade Mista (público-privada)</option>
+                </select>
+              </div>
+              <div class="fld"><label>Representante Legal / Mandatário</label><input type="text" placeholder="Nome completo e cargo"></div>
+              <div class="fld"><label>Morada / Sede do Mutuário</label><input type="text" placeholder="Rua, Bairro, Município, Província"></div>
+              <div class="fld"><label>Foro — Tribunal Competente</label>
+                <select>
+                  <option>Tribunal Provincial de Luanda</option><option>Tribunal Provincial de Benguela</option>
+                  <option>Tribunal Provincial do Huambo</option><option>Tribunal Provincial de Cabinda</option>
+                  <option>Tribunal de 1.ª Inst. — Belas</option><option>Tribunal de 1.ª Inst. — Viana</option>
+                  <option>Centro de Arbitragem de Angola (CAA)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="fs"><div class="fst">II — Condições Financeiras Particulares</div>
+            <div class="fg fg2">
+              <div class="fld"><label>Valor do Mútuo (Kz)</label><input type="number" placeholder="0"></div>
+              <div class="fld"><label>Valor por Extenso</label><input type="text" placeholder="Ex: Hum Mil Milhões de Kwanzas"></div>
+              <div class="fld"><label>Taxa de Juro Anual (%)</label><input type="number" step="0.1" placeholder="15.5"></div>
+              <div class="fld"><label>Base de Cálculo dos Juros</label>
+                <select><option selected>Mês de 30 dias</option><option>Ano Comercial 360 dias</option><option>Ano Civil 365 dias</option></select>
+              </div>
+              <div class="fld"><label>Prazo Total</label>
+                <select><option>6 meses</option><option>12 meses</option><option>18 meses</option><option selected>24 meses</option><option>36 meses</option><option>48 meses</option><option>60 meses</option><option>72 meses</option><option>84 meses</option><option>120 meses</option></select>
+              </div>
+              <div class="fld"><label>Periodicidade das Prestações</label>
+                <select><option>Mensal</option><option>Bimestral</option><option>Trimestral</option><option selected>Semestral</option><option>Anual</option><option>Única no Vencimento</option></select>
+              </div>
+              <div class="fld"><label>Data de Celebração</label><input type="date" value="2026-06-16"></div>
+              <div class="fld"><label>Data do 1.º Desembolso</label><input type="date" value="2026-07-01"></div>
+              <div class="fld"><label>Período de Carência (meses)</label><input type="number" value="0" min="0"></div>
+              <div class="fld"><label>Juro de Mora (%/dia)</label><input type="number" step="0.01" value="0.05"></div>
+              <div class="fld"><label>Comissão de Abertura (%)</label><input type="number" step="0.1" value="1.5"></div>
+              <div class="fld"><label>Revisão de Taxa</label>
+                <select><option selected>Taxa Fixa — sem revisão</option><option>Revisão anual por acordo</option><option>Indexada à TBC + Spread</option><option>Indexada à Luibor + Spread</option></select>
+              </div>
+            </div>
+          </div>
+          <div class="fs"><div class="fst">III — Meios de Reembolso Aceites <span style="color:var(--wm);font-weight:400;font-size:7.5px">(selecção múltipla)</span></div>
+            <div class="fld"><div class="mck">
+              <label class="mci on"><input type="checkbox" checked>💵 Numerário (Kz)</label>
+              <label class="mci on"><input type="checkbox" checked>📜 OT — Obrigações do Tesouro</label>
+              <label class="mci on"><input type="checkbox" checked>📋 BT — Bilhetes do Tesouro</label>
+              <label class="mci"><input type="checkbox">🏦 Transferência Bancária</label>
+              <label class="mci"><input type="checkbox">🌍 Moeda Estrangeira (USD/EUR)</label>
+              <label class="mci"><input type="checkbox">🏗️ Dação em Activos / Obras</label>
+              <label class="mci"><input type="checkbox">📊 Cessão de Créditos Fiscais</label>
+              <label class="mci"><input type="checkbox">🔄 Compensação de Dívidas</label>
+              <label class="mci"><input type="checkbox">🏠 Dação em Imóveis</label>
+              <label class="mci"><input type="checkbox">📈 Receitas Futuras / Royalties</label>
+              <label class="mci"><input type="checkbox">📑 Letra de Câmbio Aceite</label>
+            </div></div>
+            <div class="fg fg2" style="margin-top:10px">
+              <div class="fld"><label>Condições OT (entidades públicas)</label>
+                <select><option>N/A — Mutuário privado</option><option selected>OT aceites c/ desconto máx. 15% sobre facial</option><option>OT ao valor facial (sem desconto)</option><option>Apenas numerário</option><option>OT+Cash: mín. 30% numerário</option><option>OT+Cash: mín. 50% numerário</option><option>Condições a negociar caso a caso</option></select>
+              </div>
+              <div class="fld"><label>Maturidade Máxima OT</label>
+                <select><option>2 anos</option><option>3 anos</option><option selected>5 anos</option><option>7 anos</option><option>10 anos</option><option>Sem limite</option></select>
+              </div>
+            </div>
+          </div>
+          <div class="fs"><div class="fst">IV — Garantias Constituídas</div>
+            <div class="fg fg2">
+              <div class="fld"><label>Garantia Principal</label>
+                <select><option>Garantia Bancária Autónoma à 1.ª Solicitação</option><option selected>Cessão de Receitas / Créditos Futuros</option><option>Hipoteca — Bem Imóvel (art.º 686.º CC)</option><option>Penhor de Equipamentos (art.º 667.º CC)</option><option>Penhor de Acções / Participações</option><option>Aval / Fiança Pessoal (art.º 627.º CC)</option><option>Seguro de Crédito</option><option>Consignação de Receitas Fiscais</option></select>
+              </div>
+              <div class="fld"><label>Valor da Garantia (Kz)</label><input type="number" placeholder="Mín. 110% do mútuo"></div>
+              <div class="fld"><label>Garantia Secundária</label>
+                <select><option selected>Nenhuma</option><option>Fiança Solidária de Sócios</option><option>Penhor de Veículos</option><option>Penhora de Contas Bancárias</option></select>
+              </div>
+              <div class="fld"><label>Renovação Automática</label>
+                <select><option selected>Sim — Alerta 30 dias antes</option><option>Sim — Alerta 60 dias antes</option><option>Não</option></select>
+              </div>
+            </div>
+          </div>
+          <div class="fs" id="fases-sec"><div class="fst">V — Fases de Desembolso (Modelo C)</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:grid;grid-template-columns:38px 1fr 1fr 2fr 32px;gap:7px;align-items:end">
+                <div class="fld"><label>Fase</label><input type="text" value="1" style="text-align:center"></div>
+                <div class="fld"><label>% do Total</label><input type="number" value="30"></div>
+                <div class="fld"><label>Data Prevista</label><input type="date" value="2026-07-01"></div>
+                <div class="fld"><label>Condição de Libertação</label><input type="text" placeholder="Ex: Garantia registada + aprovação técnica"></div>
+                <button class="btn bd2" style="padding:6px;margin-bottom:1px">✕</button>
+              </div>
+              <div style="display:grid;grid-template-columns:38px 1fr 1fr 2fr 32px;gap:7px;align-items:end">
+                <div class="fld"><label>Fase</label><input type="text" value="2" style="text-align:center"></div>
+                <div class="fld"><label>% do Total</label><input type="number" value="40"></div>
+                <div class="fld"><label>Data Prevista</label><input type="date" value="2026-10-01"></div>
+                <div class="fld"><label>Condição de Libertação</label><input type="text" placeholder="Ex: 50% de execução vistorada e aprovada"></div>
+                <button class="btn bd2" style="padding:6px;margin-bottom:1px">✕</button>
+              </div>
+              <div style="display:grid;grid-template-columns:38px 1fr 1fr 2fr 32px;gap:7px;align-items:end">
+                <div class="fld"><label>Fase</label><input type="text" value="3" style="text-align:center"></div>
+                <div class="fld"><label>% do Total</label><input type="number" value="30"></div>
+                <div class="fld"><label>Data Prevista</label><input type="date" value="2027-02-01"></div>
+                <div class="fld"><label>Condição de Libertação</label><input type="text" placeholder="Ex: Vistoria final aprovada + relatório conclusão"></div>
+                <button class="btn bd2" style="padding:6px;margin-bottom:1px">✕</button>
+              </div>
+            </div>
+            <button class="btn bo2" style="margin-top:8px;font-size:9px">+ Adicionar Fase</button>
+          </div>
+          <div style="display:flex;gap:9px;margin-bottom:20px">
+            <button class="btn bg2" style="flex:1">📄 Gerar Minuta Completa</button>
+            <button class="btn bo2">💾 Rascunho</button>
+            <button class="btn bo2">📊 Simular Amortização</button>
+          </div>
+        </div>
+        <!-- MINUTA PREVIEW -->
+        <div>
+          <div class="pn" style="position:sticky;top:76px">
+            <div class="pnh"><div class="pnt">Pré-Visualização da Minuta</div><span class="ptg em">Auto-actualização</span></div>
+            <div class="cprev" style="max-height:calc(100vh - 190px);overflow-y:auto;margin:14px">
+              <h4>CONTRATO DE MÚTUO CIVIL N.º MAI-2026-_____</h4>
+              <p>Feito em Luanda, aos <span class="fill">___ de ______ de 2026</span>.</p>
+              <p><strong>ENTRE:</strong><br><span class="fill">MAIOMBE — Capital &amp; Credit, Lda.</span>, NIF <span class="fill">5000056146</span>, representada pelo seu Director Geral, adiante <strong>"MUTUANTE"</strong>;<br><strong>E:</strong><br><span class="fill">[Designação do Mutuário]</span>, NIF <span class="fill">[NIF]</span>, representado por <span class="fill">[Rep. Legal]</span>, adiante <strong>"MUTUÁRIO"</strong>.</p>
+              <h4>CL.ª 1.ª — OBJECTO E REGIME JURÍDICO</h4>
+              <p>1.1. O presente instrumento é um <strong>contrato de mútuo civil</strong>, celebrado ao abrigo dos Art.ºs 1142.º e ss. do Código Civil Angolano (Dec.-Lei n.º 47344/66, com alterações pela Lei n.º 9/11). Constitui negócio jurídico de <strong>Direito Civil puro</strong>, ao abrigo da plena autonomia privada das partes (Art.º 405.º CC).</p>
+              <p>1.2. As partes celebram o presente contrato ao abrigo da plena autonomia privada consagrada no artigo 405.º do Código Civil Angolano, com liberdade na fixação das condições de remuneração, prazo e garantias.</p>
+              <h4>CL.ª 2.ª — MONTANTE E DESEMBOLSO</h4>
+              <p>2.1. A MUTUANTE entrega ao MUTUÁRIO, a título de mútuo, <span class="fill">Kz [Valor] ([por extenso])</span>, nos termos e condições do presente contrato e do Plano de Amortização — Anexo I.</p>
+              <h4>CL.ª 3.ª — REMUNERAÇÃO E JUROS</h4>
+              <p>3.1. O MUTUÁRIO paga juros à taxa anual de <span class="fill">[Taxa]%</span>, calculados sobre o capital em dívida com base em <span class="fill">mês de 30 dias</span>, sem capitalização automática.</p>
+              <p>3.2. Comissão de abertura: <span class="fill">1.5%</span> do montante do mútuo, devida na data do 1.º desembolso.</p>
+              <h4>CL.ª 4.ª — MORA E PENALIDADES</h4>
+              <p>4.1. Em mora, acrescem juros moratórios de <span class="fill">0.05%</span>/dia desde a data de vencimento até integral pagamento (Art.ºs 804.º e ss. CC), sem necessidade de interpelação.</p>
+              <h4>CL.ª 5.ª — PRAZO E AMORTIZAÇÃO</h4>
+              <p>5.1. Prazo total: <span class="fill">[Prazo]</span>. Prestações <span class="fill">semestrais</span> conforme Plano de Amortização — Anexo I (capital + juros + comissões por prestação).</p>
+              <h4>CL.ª 6.ª — MEIOS DE REEMBOLSO ACEITES</h4>
+              <p>6.1. O reembolso do capital, juros e encargos poderá ser efectuado pelos seguintes meios:</p>
+              <p style="padding-left:12px">a) <strong>Numerário (Kz)</strong> — depósito ou transferência;<br>b) <strong>OT — Obrigações do Tesouro</strong> — aceites ao valor facial c/ desconto máx. 15%, negociado por escrito; maturidade residual mín. 12 meses;<br>c) <strong>BT — Bilhetes do Tesouro</strong> — aceites ao valor de mercado BNA;<br>d) <strong>Combinação</strong> — componente cash mín. 30% por prestação, salvo acordo escrito.</p>
+              <p>6.2. A aceitação de OT/BT <strong>não implica novação</strong> da obrigação. O MUTUÁRIO é responsável por diferenças entre o valor de realização e o montante em dívida.</p>
+              <h4>CL.ª 7.ª — GARANTIAS</h4>
+              <p>7.1. Em garantia, o MUTUÁRIO constitui: <span class="fill">Cessão de Receitas Futuras</span>, valor <span class="fill">Kz [Garantia]</span>, mantida válida e eficaz durante toda a vigência. Alertas automáticos 30 dias antes do vencimento.</p>
+              <h4>CL.ª 8.ª — VENCIMENTO ANTECIPADO</h4>
+              <p>8.1. Ocorre vencimento antecipado por simples notificação escrita em caso de: (a) mora &gt;30 dias; (b) deterioração financeira significativa; (c) declarações falsas; (d) oneração das garantias sem consentimento; (e) insolvência; (f) dissolução; (g) cessação de actividade &gt;90 dias.</p>
+              <h4>CL.ª 9.ª — DESEMBOLSOS FASEADOS (Modelo C)</h4>
+              <p>9.1. Os desembolsos são condicionados à verificação das condições de libertação definidas no Anexo II, incluindo vistorias técnicas e relatórios aprovados pela MUTUANTE.</p>
+              <h4>CL.ª 10.ª — LEI E FORO</h4>
+              <p>10.1. Lei angolana — Código Civil. Foro eleito: <span class="fill">Tribunal Provincial de Luanda</span>, com renúncia irrevogável a qualquer outro.</p>
+              <h4>CL.ª 11.ª — DISPOSIÇÕES GERAIS</h4>
+              <p>11.1. Nos termos do Art.º 1143.º CC (Lei n.º 9/11): valores &gt; UCF 3.000 exigem escritura pública; valores &gt; UCF 2.000 exigem documento assinado pelo MUTUÁRIO. Alterações apenas por escrito e assinadas por ambas as Partes.</p>
+              <p>11.2. Integram o presente contrato: <strong>Anexo I</strong> — Plano de Amortização; <strong>Anexo II</strong> — Condições de Desembolso por Fase (Modelo C); <strong>Anexo III</strong> — Instrumentos de Garantia.</p>
+              <div style="margin-top:18px;border-top:1px solid var(--sl2);padding-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:20px;text-align:center">
+                <div><div style="font-size:9px;color:var(--wm);margin-bottom:20px">A MUTUANTE</div><div style="border-top:1px solid var(--sl2);padding-top:6px;font-size:9.5px;color:var(--gold)">MAIOMBE — Capital &amp; Credit, Lda.</div></div>
+                <div><div style="font-size:9px;color:var(--wm);margin-bottom:20px">O MUTUÁRIO</div><div style="border-top:1px solid var(--sl2);padding-top:6px;font-size:9.5px;color:var(--gold)">[Designação do Mutuário]</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PASSIVO ═══ -->
+    <div id="mod-passivo" style="display:none">
+      <div class="ntbox"><div class="ntttl">Gestão Integral do Passivo Financeiro</div>
+        <div class="nttxt">Gestão completa das obrigações financeiras da Maiombe perante os seus credores: bancos, acionistas, investidores e parceiros. Planos de amortização, alertas de vencimento, penalidades, processos de renegociação e litígios.</div>
+      </div>
+      <div class="kg4">
+        <div class="kc gold"><div class="kl">Total Passivo Financeiro</div><div class="kv">47.8<span class="u">Mil M Kz</span></div><span class="kd dn">4 fontes activas</span></div>
+        <div class="kc cr"><div class="kl">Reembolsos Próx. 30 dias</div><div class="kv">2.30<span class="u">Mil M Kz</span></div><span class="kd dn">Atenção necessária</span></div>
+        <div class="kc am"><div class="kl">Custo Médio do Passivo</div><div class="kv">14.8<span class="u">%</span></div><span class="kd nt">Estável</span></div>
+        <div class="kc em"><div class="kl">Margem Activo vs Passivo</div><div class="kv">+0.6<span class="u">pp</span></div><span class="kd up">Positivo</span></div>
+      </div>
+      <div class="cgr">
+        <div class="pn"><div class="pnh"><div class="pnt">Mapa de Amortizações do Passivo — 2026 a 2028</div><span class="ptg">Capital + Juros</span></div><div class="cw"><canvas id="ch-pass"></canvas></div></div>
+        <div class="pn"><div class="pnh"><div class="pnt">Composição do Passivo</div></div><div class="cw" style="display:flex;align-items:center;justify-content:center"><canvas id="ch-pcomp" style="max-height:195px;max-width:195px"></canvas></div></div>
+      </div>
+      <div class="pn">
+        <div class="pnh"><div class="pnt">Obrigações por Fonte — Gestão Completa de Alto Nível</div><button class="btn bg2" style="font-size:8.5px;padding:5px 9px">+ Registar Obrigação</button></div>
+        <div style="padding:13px">
+          <div class="pi2">
+            <div class="pih"><div class="piico" style="background:rgba(201,168,76,.13)">🏦</div><div style="flex:1"><div class="pinm">BFA — Linha Fomento Empresarial</div><div style="font-size:8.5px;color:var(--wm)">Contrato MAI/PASSIVO/2023/001 · Data: 15/Mar/2023 · Ref. BFA: LFE-2023-MAI</div></div><div style="text-align:right"><div class="pival">17.000.000.000 Kz</div><div style="font-size:8.5px;color:var(--wm)">Capital em dívida</div></div></div>
+            <div class="pimt"><span>Taxa: 14.5% a.a.</span><span>Prazo: Mar 2028</span><span>Prestações: Semestrais</span><span>Garantia: Hipoteca sede</span><span>Próx. venc.: 15/Set/2026</span><span>Mora: 0.08%/dia</span><span style="color:var(--em)">Normal · Sem litígio</span></div>
+            <div class="pibar"><div class="pibrl"><span>Amortizado: 1.5 Mil M Kz (8.1%)</span><span>Em dívida: 17.0 Mil M Kz</span></div><div class="pb"><div class="pf" style="width:8.1%;background:linear-gradient(90deg,var(--em),var(--em2))"></div></div></div>
+            <div class="tw" style="margin-top:10px;max-height:160px;overflow-y:auto"><table>
+              <thead><tr><th>#</th><th>Data Venc.</th><th>Capital (Kz)</th><th>Juros (Kz)</th><th>Prestação Total</th><th>Cap. Residual</th><th>Estado</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td class="tdm" style="color:var(--em)">15/Mar/2024</td><td class="tdm">1.500.000.000</td><td class="tdm">1.338.750.000</td><td class="tdm">2.838.750.000</td><td class="tdm">17.000.000.000</td><td><span class="rb ok">Pago</span></td></tr>
+                <tr><td>2</td><td class="tdm" style="color:var(--em)">15/Set/2024</td><td class="tdm">1.500.000.000</td><td class="tdm">1.230.000.000</td><td class="tdm">2.730.000.000</td><td class="tdm">15.500.000.000</td><td><span class="rb ok">Pago</span></td></tr>
+                <tr><td>3</td><td class="tdm" style="color:var(--em)">15/Mar/2025</td><td class="tdm">1.500.000.000</td><td class="tdm">1.121.250.000</td><td class="tdm">2.621.250.000</td><td class="tdm">14.000.000.000</td><td><span class="rb ok">Pago</span></td></tr>
+                <tr><td>4</td><td class="tdm" style="color:var(--em)">15/Set/2025</td><td class="tdm">1.500.000.000</td><td class="tdm">1.012.500.000</td><td class="tdm">2.512.500.000</td><td class="tdm">12.500.000.000</td><td><span class="rb ok">Pago</span></td></tr>
+                <tr><td>5</td><td class="tdm" style="color:var(--em)">15/Mar/2026</td><td class="tdm">1.500.000.000</td><td class="tdm">903.750.000</td><td class="tdm">2.403.750.000</td><td class="tdm">11.000.000.000</td><td><span class="rb ok">Pago</span></td></tr>
+                <tr style="background:rgba(201,168,76,.05)"><td>6</td><td class="tdm" style="color:var(--gold);font-weight:700">15/Set/2026 ◄</td><td class="tdm">1.500.000.000</td><td class="tdm">795.000.000</td><td class="tdm" style="color:var(--gold);font-weight:700">2.295.000.000</td><td class="tdm">9.500.000.000</td><td><span class="rb warn">Pendente</span></td></tr>
+                <tr><td>7</td><td class="tdm">15/Mar/2027</td><td class="tdm">1.500.000.000</td><td class="tdm">686.250.000</td><td class="tdm">2.186.250.000</td><td class="tdm">8.000.000.000</td><td><span class="rb ft">Futuro</span></td></tr>
+                <tr><td>8</td><td class="tdm">15/Set/2027</td><td class="tdm">1.500.000.000</td><td class="tdm">577.500.000</td><td class="tdm">2.077.500.000</td><td class="tdm">6.500.000.000</td><td><span class="rb ft">Futuro</span></td></tr>
+                <tr><td>9</td><td class="tdm">15/Mar/2028</td><td class="tdm">1.500.000.000</td><td class="tdm">468.750.000</td><td class="tdm">1.968.750.000</td><td class="tdm">5.000.000.000</td><td><span class="rb ft">Futuro</span></td></tr>
+                <tr><td>10</td><td class="tdm">15/Set/2028</td><td class="tdm">5.000.000.000</td><td class="tdm">360.000.000</td><td class="tdm">5.360.000.000</td><td class="tdm">0</td><td><span class="rb ft">Futuro</span></td></tr>
+              </tbody>
+            </table></div>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <button class="btn bo2" style="font-size:8.5px;padding:4px 9px">📊 Mapa Completo</button>
+              <button class="btn bo2" style="font-size:8.5px;padding:4px 9px">✏️ Renegociar</button>
+              <button class="btn bo2" style="font-size:8.5px;padding:4px 9px">⚠️ Penalidade</button>
+              <button class="btn bd2" style="font-size:8.5px;padding:4px 9px">⚖️ Litígio</button>
+            </div>
+          </div>
+          <div class="pi2">
+            <div class="pih"><div class="piico" style="background:rgba(38,184,112,.13)">📊</div><div style="flex:1"><div class="pinm">Alpinea Investimentos — Acordo de Suprimentos</div><div style="font-size:8.5px;color:var(--wm)">Contrato MAI/PASSIVO/2022/001 · Data: 01/Jan/2022 · Acionista Principal</div></div><div style="text-align:right"><div class="pival">16.200.000.000 Kz</div><div style="font-size:8.5px;color:var(--wm)">Capital (suprimentos)</div></div></div>
+            <div class="pimt"><span>Taxa: 0%</span><span>Prazo: Indefinido</span><span>Subordinado a terceiros</span><span style="color:var(--em)">Normal</span></div>
+          </div>
+          <div class="pi2">
+            <div class="pih"><div class="piico" style="background:rgba(224,144,32,.13)">💼</div><div style="flex:1"><div class="pinm">Investidores Privados — Debêntures Série A</div><div style="font-size:8.5px;color:var(--wm)">Contrato MAI/PASSIVO/2024/001 · Emissão: Jul/2024 · Vencimento: Jul/2027</div></div><div style="text-align:right"><div class="pival">9.100.000.000 Kz</div><div style="font-size:8.5px;color:var(--wm)">Capital em dívida</div></div></div>
+            <div class="pimt"><span>Taxa: 16% a.a.</span><span>Cupão: Anual (Jul)</span><span>Garantia: Cessão carteira crédito</span><span>Próx. pagamento: Jul/2026</span><span style="color:var(--am)">Próx. pagamento em 25 dias</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="pn"><div class="pnh"><div class="pnt">Balanceamento Activo vs. Passivo — Projecção Fluxo Líquido</div><span class="ptg am">Análise de Liquidez</span></div><div class="cw"><canvas id="ch-balance" style="max-height:190px"></canvas></div></div>
+    </div>
+
+    <!-- ═══ CRÉDITO CLIENTES ═══ -->
+    <div id="mod-clientes" style="display:none">
+      <div class="kg4">
+        <div class="kc gold"><div class="kl">Crédito Total Cedido</div><div class="kv">39.2<span class="u">Mil M Kz</span></div><span class="kd up">24 contratos</span></div>
+        <div class="kc em"><div class="kl">Clientes em Dia</div><div class="kv">21</div><span class="kd up">87.5% do total</span></div>
+        <div class="kc cr"><div class="kl">Em Incumprimento</div><div class="kv">3</div><span class="kd dn">Acção activa</span></div>
+        <div class="kc bl"><div class="kl">Emails Automáticos (mês)</div><div class="kv">47</div><span class="kd nt">Sistema activo</span></div>
+      </div>
+      <div class="kg3">
+        <div class="cc"><div class="cch"><div class="cca" style="background:linear-gradient(135deg,var(--em),var(--em2))">GL</div><div style="flex:1"><div class="ccn">Gov. Provincial de Luanda</div><div class="cct">Gov. Prov. · MAI-2026-024 · 15.5% a.a.</div></div><span class="rb low">Baixo</span></div>
+          <div class="ccs"><div class="ccsv"><div class="v">1.2B</div><div class="l">Capital</div></div><div class="ccsv"><div class="v" style="color:var(--am)">35%</div><div class="l">Exec.</div></div><div class="ccsv"><div class="v" style="color:var(--em)">✓</div><div class="l">Em dia</div></div></div>
+          <div style="margin-top:8px"><span class="tbt-cash">Cash</span></div>
+          <div style="margin-top:8px;padding:7px;background:rgba(7,9,12,.5);border-radius:4px">
+            <div style="font-size:8.5px;color:var(--wm);margin-bottom:4px">Próx. prestação: 15/Jul/2026 · 293.000.000 Kz</div>
+            <div class="pb"><div class="pf" style="width:35%"></div></div>
+            <div style="font-size:8px;color:var(--wm);margin-top:3px">Amortizado: 420M Kz / Residual: 780M Kz</div>
+          </div>
+          <div style="display:flex;gap:5px;margin-top:8px"><button class="btn bo2" style="font-size:8.5px;padding:3px 7px;flex:1">📋 Mapa Amort.</button><button class="btn bo2" style="font-size:8.5px;padding:3px 7px;flex:1">✉️ Email</button></div>
+        </div>
+        <div class="cc"><div class="cch"><div class="cca" style="background:linear-gradient(135deg,var(--am2),var(--am))">ENE</div><div style="flex:1"><div class="ccn">Emp. Nacional de Energia</div><div class="cct">Emp. Pública · MAI-2026-021 · 16.0% a.a.</div></div><span class="rb med">Médio</span></div>
+          <div class="ccs"><div class="ccsv"><div class="v">3.5B</div><div class="l">Capital</div></div><div class="ccsv"><div class="v" style="color:var(--am)">62%</div><div class="l">Exec.</div></div><div class="ccsv"><div class="v" style="color:var(--am)">⚠</div><div class="l">5d Atraso</div></div></div>
+          <div style="margin-top:8px"><span class="tbt-OT">OT 5 anos</span></div>
+          <div style="margin-top:8px;padding:7px;background:rgba(224,144,32,.07);border:1px solid rgba(224,144,32,.15);border-radius:4px">
+            <div style="font-size:8.5px;color:var(--am);margin-bottom:3px">⚠ Prestação Jun/26 em atraso 5 dias</div>
+            <div style="font-size:8px;color:var(--wm)">2× emails enviados · Aguarda OT do MINFIN</div>
+          </div>
+          <div style="display:flex;gap:5px;margin-top:8px"><button class="btn bo2" style="font-size:8.5px;padding:3px 7px;flex:1">📋 Mapa</button><button class="btn bd2" style="font-size:8.5px;padding:3px 7px;flex:1">🔔 Alerta</button></div>
+        </div>
+        <div class="cc"><div class="cch"><div class="cca" style="background:linear-gradient(135deg,var(--cr2),var(--cr))">CS</div><div style="flex:1"><div class="ccn">Gov. Prov. Cuanza Sul</div><div class="cct">Gov. Prov. · MAI-2025-038 · 14.8% a.a.</div></div><span class="rb hi">Alto</span></div>
+          <div class="ccs"><div class="ccsv"><div class="v">850M</div><div class="l">Capital</div></div><div class="ccsv"><div class="v" style="color:var(--cr)">88%</div><div class="l">Exec.</div></div><div class="ccsv"><div class="v" style="color:var(--cr)">✕</div><div class="l">3d Venc.</div></div></div>
+          <div style="margin-top:8px"><span class="tbt-mix">OT + Cash</span></div>
+          <div style="margin-top:8px;padding:7px;background:rgba(212,51,82,.07);border:1px solid rgba(212,51,82,.2);border-radius:4px">
+            <div style="font-size:8.5px;color:var(--cr);margin-bottom:3px">⚠ Vencimento: 19/Jun/2026 (3 dias)</div>
+            <div style="font-size:8px;color:var(--wm)">4× emails · 2× chamadas · Acordo OT pendente</div>
+          </div>
+          <div style="display:flex;gap:5px;margin-top:8px"><button class="btn bo2" style="font-size:8.5px;padding:3px 7px;flex:1">📋 Mapa</button><button class="btn bd2" style="font-size:8.5px;padding:3px 7px;flex:1">⚖️ Coerciva</button></div>
+        </div>
+      </div>
+      <div class="pn"><div class="pnh"><div class="pnt">Mapa de Amortização Individual — Gov. Prov. Luanda (MAI-2026-024)</div>
+        <button class="btn bo2" style="font-size:8.5px;padding:4px 9px">✉️ Enviar Extracto</button>
+        <button class="btn bg2" style="font-size:8.5px;padding:4px 9px">⬇ PDF</button>
+      </div>
+        <div class="tw"><table><thead><tr><th>#</th><th>Data Vencimento</th><th>Cap. Inicial</th><th>Amortização</th><th>Juros</th><th>Prestação Total</th><th>Cap. Residual</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="tdm">15/Jan/2027</td><td class="tdm">1.200.000.000</td><td class="tdm">200.000.000</td><td class="tdm">93.000.000</td><td class="tdm">293.000.000</td><td class="tdm">1.000.000.000</td><td><span class="rb ft">Futuro</span></td></tr>
+            <tr><td>2</td><td class="tdm">15/Jul/2027</td><td class="tdm">1.000.000.000</td><td class="tdm">200.000.000</td><td class="tdm">77.500.000</td><td class="tdm">277.500.000</td><td class="tdm">800.000.000</td><td><span class="rb ft">Futuro</span></td></tr>
+            <tr><td>3</td><td class="tdm">15/Jan/2028</td><td class="tdm">800.000.000</td><td class="tdm">200.000.000</td><td class="tdm">62.000.000</td><td class="tdm">262.000.000</td><td class="tdm">600.000.000</td><td><span class="rb ft">Futuro</span></td></tr>
+            <tr><td>4</td><td class="tdm">15/Jul/2028</td><td class="tdm">600.000.000</td><td class="tdm">200.000.000</td><td class="tdm">46.500.000</td><td class="tdm">246.500.000</td><td class="tdm">400.000.000</td><td><span class="rb ft">Futuro</span></td></tr>
+            <tr><td>5</td><td class="tdm">15/Jan/2029</td><td class="tdm">400.000.000</td><td class="tdm">200.000.000</td><td class="tdm">31.000.000</td><td class="tdm">231.000.000</td><td class="tdm">200.000.000</td><td><span class="rb ft">Futuro</span></td></tr>
+            <tr><td>6</td><td class="tdm">15/Jul/2029</td><td class="tdm">200.000.000</td><td class="tdm">200.000.000</td><td class="tdm">15.500.000</td><td class="tdm">215.500.000</td><td class="tdm">0</td><td><span class="rb ft">Futuro</span></td></tr>
+          </tbody></table></div>
+      </div>
+      <div class="pn"><div class="pnh"><div class="pnt">Automação de Emails de Cobrança</div><span class="ptg em">Sistema Activo</span></div>
+        <div style="padding:13px">
+          <div class="fg fg3" style="margin-bottom:10px">
+            <div class="fld"><label>Alertas Preventivos (dias antes do vencimento)</label><div class="mck">
+              <label class="mci on"><input type="checkbox" checked>30d</label><label class="mci on"><input type="checkbox" checked>15d</label>
+              <label class="mci on"><input type="checkbox" checked>7d</label><label class="mci on"><input type="checkbox" checked>3d</label>
+              <label class="mci on"><input type="checkbox" checked>1d</label>
+            </div></div>
+            <div class="fld"><label>Alertas Pós-Incumprimento</label><div class="mck">
+              <label class="mci on"><input type="checkbox" checked>D+1</label><label class="mci on"><input type="checkbox" checked>D+7</label>
+              <label class="mci on"><input type="checkbox" checked>D+15 (formal)</label><label class="mci on"><input type="checkbox" checked>D+30 (pré-judicial)</label>
+            </div></div>
+            <div class="fld"><label>Cópia Automática (CC)</label><div class="mck">
+              <label class="mci on"><input type="checkbox" checked>Dir. Financeiro</label>
+              <label class="mci on"><input type="checkbox" checked>Jurídico</label>
+              <label class="mci"><input type="checkbox">Gestor de Conta</label>
+            </div></div>
+          </div>
+          <div style="background:rgba(7,9,12,.5);border:1px solid var(--pe);border-radius:var(--rm);padding:12px">
+            <div style="font-size:8.5px;color:var(--gold);text-transform:uppercase;letter-spacing:1.4px;margin-bottom:7px">Último Email Enviado</div>
+            <div style="font-size:10px;color:var(--wm);line-height:1.7">
+              <strong style="color:var(--wk)">Para:</strong> geral@govcuanzasul.ao · dir.financeiro@cuanzasul.gov.ao<br>
+              <strong style="color:var(--wk)">Assunto:</strong> MAIOMBE · Contrato MAI-2025-038 · Vencimento em 3 dias<br>
+              <strong style="color:var(--wk)">Enviado:</strong> 16/Jun/2026 às 09:00 (automático · sistema automático)<br>
+              <strong style="color:var(--wk)">Estado:</strong> <span style="color:var(--em)">Entregue · Lido às 10:14 · Resposta pendente</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAXAS, JUROS & COMISSÕES ═══ -->
+    <div id="mod-comissoes" style="display:none">
+      <div class="kg4">
+        <div class="kc gold"><div class="kl">Taxa de Juro Base</div><div class="kv">15.4<span class="u">%</span></div><span class="kd up">Spread Médio</span></div>
+        <div class="kc em"><div class="kl">Custo Médio Passivo</div><div class="kv">14.8<span class="u">%</span></div><span class="kd nt">Estável</span></div>
+        <div class="kc am"><div class="kl">Margem Financeira</div><div class="kv">+0.6<span class="u">pp</span></div><span class="kd up">Positivo</span></div>
+        <div class="kc bl"><div class="kl">Comissões (mês)</div><div class="kv">48.2<span class="u">M Kz</span></div><span class="kd up">+12%</span></div>
+      </div>
+      <div class="mg2">
+        <div class="pn"><div class="pnh"><div class="pnt">Tabela de Taxas por Tipo de Mutuário</div><span class="ptg">Gestão Interna · Sem restrições BNA</span></div>
+          <div class="tw"><table><thead><tr><th>Tipo de Mutuário</th><th>Taxa Mín.</th><th>Taxa Base</th><th>Taxa Máx.</th><th>Com. Gestão</th><th>Com. Abertura</th></tr></thead>
+            <tbody>
+              <tr><td class="tdp">Governo Central</td><td class="tdm" style="color:var(--em)">10.0%</td><td class="tdm" style="color:var(--gold)">12.0%</td><td class="tdm" style="color:var(--am)">14.0%</td><td class="tdm">0.5% a.a.</td><td class="tdm">0.75%</td></tr>
+              <tr><td class="tdp">Ministérios</td><td class="tdm" style="color:var(--em)">11.0%</td><td class="tdm" style="color:var(--gold)">13.0%</td><td class="tdm" style="color:var(--am)">15.0%</td><td class="tdm">0.5% a.a.</td><td class="tdm">1.0%</td></tr>
+              <tr><td class="tdp">Governos Provinciais</td><td class="tdm" style="color:var(--em)">12.0%</td><td class="tdm" style="color:var(--gold)">14.8%</td><td class="tdm" style="color:var(--am)">17.0%</td><td class="tdm">0.75% a.a.</td><td class="tdm">1.25%</td></tr>
+              <tr><td class="tdp">Administrações Municipais</td><td class="tdm" style="color:var(--am)">13.0%</td><td class="tdm" style="color:var(--gold)">15.5%</td><td class="tdm" style="color:var(--am)">18.5%</td><td class="tdm">1.0% a.a.</td><td class="tdm">1.5%</td></tr>
+              <tr><td class="tdp">Empresas Públicas (E.P.)</td><td class="tdm" style="color:var(--am)">14.0%</td><td class="tdm" style="color:var(--gold)">16.0%</td><td class="tdm" style="color:var(--cr)">19.0%</td><td class="tdm">1.0% a.a.</td><td class="tdm">1.5%</td></tr>
+              <tr><td class="tdp">Empresas Privadas</td><td class="tdm" style="color:var(--am)">15.0%</td><td class="tdm" style="color:var(--gold)">17.5%</td><td class="tdm" style="color:var(--cr)">22.0%</td><td class="tdm">1.5% a.a.</td><td class="tdm">2.0%</td></tr>
+              <tr><td class="tdp">Particulares</td><td class="tdm" style="color:var(--cr)">18.0%</td><td class="tdm" style="color:var(--gold)">20.0%</td><td class="tdm" style="color:var(--cr)">25.0%</td><td class="tdm">2.0% a.a.</td><td class="tdm">2.5%</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div class="pn"><div class="pnh"><div class="pnt">Simulador de Rentabilidade</div></div>
+          <div style="padding:14px">
+            <div class="fg fg2" style="gap:9px">
+              <div class="fld"><label>Capital (M Kz)</label><input type="number" value="1000" id="sc" oninput="sim()"></div>
+              <div class="fld"><label>Taxa Anual (%)</label><input type="number" value="15.5" step="0.1" id="sr" oninput="sim()"></div>
+              <div class="fld"><label>Prazo (meses)</label><input type="number" value="24" id="sp" oninput="sim()"></div>
+              <div class="fld"><label>Custo Passivo (%)</label><input type="number" value="14.8" step="0.1" id="sk" oninput="sim()"></div>
+              <div class="fld"><label>Com. Abertura (%)</label><input type="number" value="1.5" step="0.1" id="sco" oninput="sim()"></div>
+              <div class="fld"><label>Com. Gestão (%/a)</label><input type="number" value="0.75" step="0.05" id="scg" oninput="sim()"></div>
+            </div>
+            <div style="margin-top:13px;display:grid;grid-template-columns:1fr 1fr;gap:7px">
+              <div style="padding:9px;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.18);border-radius:6px;text-align:center"><div style="font-size:8.5px;color:var(--wm)">Juros + Comissões</div><div style="font-size:20px;font-weight:800;color:var(--gold)" id="s-j">310M Kz</div></div>
+              <div style="padding:9px;background:rgba(38,184,112,.07);border:1px solid rgba(38,184,112,.18);border-radius:6px;text-align:center"><div style="font-size:8.5px;color:var(--wm)">Margem Líquida</div><div style="font-size:20px;font-weight:800;color:var(--em)" id="s-m">22.5M Kz</div></div>
+              <div style="padding:9px;background:rgba(7,9,12,.5);border:1px solid var(--pe);border-radius:6px;text-align:center"><div style="font-size:8.5px;color:var(--wm)">TIR Efectiva</div><div style="font-size:20px;font-weight:800;color:var(--wk)" id="s-t">17.8%</div></div>
+              <div style="padding:9px;background:rgba(7,9,12,.5);border:1px solid var(--pe);border-radius:6px;text-align:center"><div style="font-size:8.5px;color:var(--wm)">Spread Líquido</div><div style="font-size:20px;font-weight:800;color:var(--gold)" id="s-s">+0.7pp</div></div>
+            </div>
+            <div style="margin-top:9px;padding:9px;background:rgba(7,9,12,.5);border:1px solid var(--pe);border-radius:var(--rm)">
+              <div style="font-size:8.5px;color:var(--wm)">Análise de Recapitalização</div>
+              <div style="font-size:9.5px;color:var(--wk)">Com recapitalização semestral dos juros, o capital efectivo cresce para <span style="color:var(--gold)">1.342M Kz</span> ao fim de 24 meses.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pn"><div class="pnh"><div class="pnt">Tabela de Comissões — Gestão Interna Maiombe</div></div>
+        <div class="tw"><table><thead><tr><th>Tipo de Comissão</th><th>Base de Cálculo</th><th>Taxa / Valor</th><th>Periodicidade</th><th>Recapitalizável</th><th>Reinvestimento</th></tr></thead>
+          <tbody>
+            <tr><td class="tdp">Comissão de Abertura</td><td>Sobre capital mutuado</td><td class="tdm">1.0%–2.5%</td><td>Única (assinatura)</td><td><span class="rb ok">Sim</span></td><td><span class="rb ft">Opcional</span></td></tr>
+            <tr><td class="tdp">Comissão de Gestão Anual</td><td>Sobre capital em dívida</td><td class="tdm">0.5%–2.0% a.a.</td><td>Anual</td><td><span class="rb low">Não</span></td><td>N/A</td></tr>
+            <tr><td class="tdp">Comissão de Imobilização</td><td>Capital aprovado não desembolsado</td><td class="tdm">0.25% a.a.</td><td>Mensal</td><td><span class="rb low">Não</span></td><td>N/A</td></tr>
+            <tr><td class="tdp">Comissão de Reestruturação</td><td>Sobre valor reestruturado</td><td class="tdm">0.5%–1.5%</td><td>Única</td><td><span class="rb ok">Sim</span></td><td><span class="rb ft">Opcional</span></td></tr>
+            <tr><td class="tdp">Penalidade de Pré-pagamento</td><td>Capital amortizado antecipadamente</td><td class="tdm">1.0%–3.0%</td><td>Única</td><td>N/A</td><td>N/A</td></tr>
+            <tr><td class="tdp">Juros de Mora</td><td>Prestação vencida × dias em atraso</td><td class="tdm">0.05%/dia</td><td>Automático</td><td><span class="rb ok">Sim</span></td><td><span class="rb ok">Sim</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ═══ TÍTULOS DA DÍVIDA PÚBLICA ═══ -->
+    <div id="mod-titulos" style="display:none">
+      <div class="ntbox">
+        <div class="ntttl">Títulos da Dívida Pública — OT &amp; BT</div>
+        <div class="nttxt">As entidades do sector público angolano procedem frequentemente ao pagamento das suas obrigações mediante entrega de <strong style="color:var(--gold)">Obrigações do Tesouro (OT)</strong> ou <strong style="color:var(--gold)">Bilhetes do Tesouro (BT)</strong>, ao abrigo do PAE 2025 (Dec. Presidencial n.º 54/25) e do Decreto Executivo n.º 385/25. Este módulo regista, avalia e controla todos os títulos recebidos, com critérios de aceitação configuráveis pela Maiombe.</div>
+      </div>
+      <div class="kg4">
+        <div class="kc gold"><div class="kl">OT em Carteira (facial)</div><div class="kv">1.87<span class="u">Mil M Kz</span></div><span class="kd nt">4 séries</span></div>
+        <div class="kc bl"><div class="kl">BT em Carteira (mercado)</div><div class="kv">430<span class="u">M Kz</span></div><span class="kd nt">2 emissões</span></div>
+        <div class="kc cr"><div class="kl">Desconto Médio Aceite</div><div class="kv">-8.4<span class="u">%</span></div><span class="kd dn">impacto margem</span></div>
+        <div class="kc em"><div class="kl">Valor de Realização</div><div class="kv">2.12<span class="u">Mil M Kz</span></div><span class="kd up">mercado secundário</span></div>
+      </div>
+      <div class="pn"><div class="pnh"><div class="pnt">Carteira de OT e BT Recebidos como Pagamento</div><button class="btn bg2" style="font-size:8.5px;padding:5px 9px">+ Registar Entrega</button></div>
+        <div class="tw"><table><thead><tr><th>Série</th><th>Tipo</th><th>Mutuário</th><th>Contrato</th><th>Valor Facial</th><th>Vencimento</th><th>Yield</th><th>Desconto</th><th>Crédito Abatido</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr><td class="tdm tdp">OT-2026-001</td><td><span class="tbt-OT">OT 5a</span></td><td>Gov. Prov. Malanje</td><td class="tdm">MAI-2025-019</td><td class="tdm">500.000.000</td><td class="tdm">15/Jun/2031</td><td class="tdm">12.5%</td><td class="tdm">0%</td><td class="tdm">500.000.000</td><td><span class="rb ok">Aceite</span></td></tr>
+            <tr><td class="tdm tdp">OT-2026-002</td><td><span class="tbt-OT">OT 5a</span></td><td>Emp. Nac. Energia</td><td class="tdm">MAI-2026-021</td><td class="tdm">1.200.000.000</td><td class="tdm">01/Jan/2031</td><td class="tdm">12.0%</td><td class="tdm" style="color:var(--am)">-8%</td><td class="tdm">1.104.000.000</td><td><span class="rb warn">Negociação</span></td></tr>
+            <tr><td class="tdm tdp">BT-2026-003</td><td><span class="tbt-BT">BT 91d</span></td><td>Ministério da Saúde</td><td class="tdm">MAI-2024-018</td><td class="tdm">430.000.000</td><td class="tdm">15/Set/2026</td><td class="tdm">13.2%</td><td class="tdm">0%</td><td class="tdm">430.000.000</td><td><span class="rb ok">Aceite</span></td></tr>
+            <tr><td class="tdm tdp">OT-2025-004</td><td><span class="tbt-OT">OT 3a</span></td><td>Gov. Prov. Cuanza Sul</td><td class="tdm">MAI-2025-038</td><td class="tdm">170.000.000</td><td class="tdm">01/Jun/2028</td><td class="tdm">11.8%</td><td class="tdm" style="color:var(--cr)">-15%</td><td class="tdm">144.500.000</td><td><span class="rb hi">Análise</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="mg2">
+        <div class="pn"><div class="pnh"><div class="pnt">Política de Aceitação — Configurável pela Maiombe</div></div>
+          <div style="padding:13px">
+            <div class="fs" style="margin-bottom:0"><div class="fst">Parâmetros Internos</div>
+              <div class="fg fg2">
+                <div class="fld"><label>Desconto Máximo OT (%)</label><input type="number" value="15" step="0.5"></div>
+                <div class="fld"><label>Maturidade Máxima OT</label><select><option>2 anos</option><option>3 anos</option><option selected>5 anos</option><option>7 anos</option><option>10 anos</option><option>Sem limite</option></select></div>
+                <div class="fld"><label>Yield Mínima Exigida (%)</label><input type="number" value="11" step="0.5"></div>
+                <div class="fld"><label>% Mínima Cash por Prestação</label><input type="number" value="30" step="5"></div>
+                <div class="fld"><label>Aceitação de BT</label><select><option selected>Sim — valor de mercado BNA</option><option>Sim — valor facial</option><option>Não</option></select></div>
+                <div class="fld"><label>Entidades Autorizadas c/ OT</label><div class="mck">
+                  <label class="mci on"><input type="checkbox" checked>Estado Central</label>
+                  <label class="mci on"><input type="checkbox" checked>Ministérios</label>
+                  <label class="mci on"><input type="checkbox" checked>Gov. Provinciais</label>
+                  <label class="mci"><input type="checkbox">Emp. Públicas</label>
+                </div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pn"><div class="pnh"><div class="pnt">Rentabilidade dos Títulos em Carteira</div></div><div class="cw"><canvas id="ch-tit" style="max-height:190px"></canvas></div></div>
+      </div>
+    </div>
+
+    <!-- ═══ BI ═══ -->
+    <div id="mod-bi" style="display:none">
+      <div class="cgr3">
+        <div class="pn"><div class="pnh"><div class="pnt">Fluxo de Caixa Líquido</div><span class="ptg">Activo vs. Passivo</span></div><div class="cw"><canvas id="ch-cf"></canvas></div></div>
+        <div class="pn"><div class="pnh"><div class="pnt">Exposição por Sector</div></div><div class="cw" style="display:flex;align-items:center;justify-content:center"><canvas id="ch-sec" style="max-height:185px;max-width:185px"></canvas></div></div>
+        <div class="pn"><div class="pnh"><div class="pnt">Evolução NPL</div></div><div class="cw"><canvas id="ch-npl"></canvas></div></div>
+      </div>
+      <div class="pn"><div class="pnh"><div class="pnt">Indicadores de Performance — Business Intelligence</div></div>
+        <div class="tw"><table><thead><tr><th>KPI</th><th>Valor Actual</th><th>Meta</th><th>Delta</th><th>Tendência</th><th>Rating</th></tr></thead>
+          <tbody>
+            <tr><td class="tdp">Taxa de Recuperação</td><td class="tdm">92.1%</td><td class="tdm">90.0%</td><td style="color:var(--em)">+2.1pp</td><td><div class="spark"><div class="spk" style="height:60%"></div><div class="spk" style="height:70%"></div><div class="spk" style="height:80%"></div><div class="spk" style="height:90%"></div><div class="spk" style="height:100%"></div></div></td><td><span class="rb ok">Óptimo</span></td></tr>
+            <tr><td class="tdp">Índice Cobertura Garantias</td><td class="tdm">118.4%</td><td class="tdm">110.0%</td><td style="color:var(--em)">+8.4pp</td><td><div class="spark"><div class="spk" style="height:70%"></div><div class="spk" style="height:80%"></div><div class="spk" style="height:90%"></div><div class="spk" style="height:95%"></div><div class="spk" style="height:100%"></div></div></td><td><span class="rb ok">Óptimo</span></td></tr>
+            <tr><td class="tdp">NPL Ratio</td><td class="tdm">7.9%</td><td class="tdm">6.0%</td><td style="color:var(--am)">+1.9pp</td><td><div class="spark"><div class="spk" style="height:40%;background:var(--am)"></div><div class="spk" style="height:55%;background:var(--am)"></div><div class="spk" style="height:70%;background:var(--am)"></div><div class="spk" style="height:85%;background:var(--am)"></div><div class="spk" style="height:100%;background:var(--am)"></div></div></td><td><span class="rb med">Atenção</span></td></tr>
+            <tr><td class="tdp">Spread Médio (Activo − Passivo)</td><td class="tdm">+0.6pp</td><td class="tdm">+1.5pp</td><td style="color:var(--cr)">-0.9pp</td><td><div class="spark"><div class="spk" style="height:90%;background:var(--cr)"></div><div class="spk" style="height:70%;background:var(--cr)"></div><div class="spk" style="height:55%;background:var(--cr)"></div><div class="spk" style="height:45%;background:var(--cr)"></div><div class="spk" style="height:38%;background:var(--cr)"></div></div></td><td><span class="rb hi">Crítico</span></td></tr>
+            <tr><td class="tdp">OT como % dos Recebimentos</td><td class="tdm">18.4%</td><td class="tdm">&lt;25%</td><td style="color:var(--em)">-6.6pp</td><td><div class="spark"><div class="spk" style="height:40%"></div><div class="spk" style="height:55%"></div><div class="spk" style="height:65%"></div><div class="spk" style="height:55%"></div><div class="spk" style="height:48%"></div></div></td><td><span class="rb ok">Normal</span></td></tr>
+            <tr><td class="tdp">Concentração Top-3 Mutuários</td><td class="tdm">41.2%</td><td class="tdm">&lt;35%</td><td style="color:var(--cr)">+6.2pp</td><td><div class="spark"><div class="spk" style="height:60%;background:var(--cr)"></div><div class="spk" style="height:72%;background:var(--cr)"></div><div class="spk" style="height:82%;background:var(--cr)"></div><div class="spk" style="height:92%;background:var(--cr)"></div><div class="spk" style="height:100%;background:var(--cr)"></div></div></td><td><span class="rb hi">Elevado</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+
+    <!-- ═══ CARTEIRA ═══ -->
+    <div id="mod-carteira" style="display:none">
+      <div class="kg4">
+        <div class="kc gold"><div class="kl">Crédito Concedido Total</div><div class="kv">39.2<span class="u">Mil M Kz</span></div><span class="kd up">24 contratos</span></div>
+        <div class="kc em"><div class="kl">Em Cobrança Regular</div><div class="kv">32.1<span class="u">Mil M Kz</span></div><span class="kd up">19 contratos</span></div>
+        <div class="kc cr"><div class="kl">Crédito Vencido (NPL)</div><div class="kv">3.1<span class="u">Mil M Kz</span></div><span class="kd dn">3 contratos</span></div>
+        <div class="kc am"><div class="kl">Crédito Liquidado</div><div class="kv">4.0<span class="u">Mil M Kz</span></div><span class="kd up">2 contratos</span></div>
+      </div>
+      <div class="mg2">
+        <div class="pn"><div class="pnh"><div class="pnt">Exposição por Tipo de Entidade</div><span class="ptg">Concentração</span></div><div class="cw"><canvas id="ch-entity" style="max-height:260px"></canvas></div></div>
+        <div class="pn"><div class="pnh"><div class="pnt">Distribuição Sectorial</div></div><div class="cw" style="display:flex;align-items:center;justify-content:center"><canvas id="ch-sector-c" style="max-height:200px;max-width:200px"></canvas></div></div>
+      </div>
+      <div class="pn"><div class="pnh"><div class="pnt">Carteira Completa — Todos os Contratos</div><button class="btn bg2" style="font-size:8.5px;padding:5px 9px">+ Novo Contrato</button></div>
+        <div class="tw"><table>
+          <thead><tr><th>Referência</th><th>Mutuário</th><th>Tipo</th><th>Valor Financiado (Kz)</th><th>Taxa</th><th>Data Início</th><th>Data Fim</th><th>Executado</th><th>Saldo Devedor</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr><td class="tdm tdp">MAI-2026-024</td><td>Gov. Prov. Luanda</td><td style="font-size:8.5px;color:var(--wm)">Gov. Provincial</td><td class="tdm">1.200.000.000</td><td class="tdm">15.5%</td><td class="tdm">01/Jul/2026</td><td class="tdm">15/Jul/2029</td><td><div class="pb" style="width:65px"><div class="pf" style="width:35%"></div></div><span style="font-size:8.5px"> 35%</span></td><td class="tdm">780.000.000</td><td><span class="rb low">Em Curso</span></td></tr>
+            <tr><td class="tdm tdp">MAI-2026-021</td><td>Emp. Nacional Energia</td><td style="font-size:8.5px;color:var(--wm)">Emp. Pública</td><td class="tdm">3.500.000.000</td><td class="tdm">16.0%</td><td class="tdm">15/Mar/2026</td><td class="tdm">15/Mar/2029</td><td><div class="pb" style="width:65px"><div class="pf" style="width:62%"></div></div><span style="font-size:8.5px"> 62%</span></td><td class="tdm">1.330.000.000</td><td><span class="rb med">Em Curso</span></td></tr>
+            <tr><td class="tdm tdp">MAI-2025-038</td><td>Gov. Prov. Cuanza Sul</td><td style="font-size:8.5px;color:var(--wm)">Gov. Provincial</td><td class="tdm">850.000.000</td><td class="tdm">14.8%</td><td class="tdm">01/Ago/2025</td><td class="tdm">01/Ago/2027</td><td><div class="pb" style="width:65px"><div class="pf" style="width:88%;background:var(--cr)"></div></div><span style="font-size:8.5px;color:var(--cr)"> 88%</span></td><td class="tdm">102.000.000</td><td><span class="rb hi">Em Risco</span></td></tr>
+            <tr><td class="tdm tdp">MAI-2025-031</td><td>Construtora Atlântico LDA</td><td style="font-size:8.5px;color:var(--wm)">Emp. Privada</td><td class="tdm">2.100.000.000</td><td class="tdm">17.5%</td><td class="tdm">01/Jun/2025</td><td class="tdm">01/Jun/2028</td><td><div class="pb" style="width:65px"><div class="pf" style="width:45%"></div></div><span style="font-size:8.5px"> 45%</span></td><td class="tdm">1.155.000.000</td><td><span class="rb low">Em Curso</span></td></tr>
+            <tr><td class="tdm tdp">MAI-2024-018</td><td>Ministério da Saúde</td><td style="font-size:8.5px;color:var(--wm)">Ministério</td><td class="tdm">5.800.000.000</td><td class="tdm">13.9%</td><td class="tdm">01/Jan/2024</td><td class="tdm">01/Jan/2027</td><td><div class="pb" style="width:65px"><div class="pf" style="width:71%"></div></div><span style="font-size:8.5px"> 71%</span></td><td class="tdm">1.682.000.000</td><td><span class="rb low">Em Curso</span></td></tr>
+            <tr><td class="tdm tdp">MAI-2024-009</td><td>Adm. Mun. Cacuaco</td><td style="font-size:8.5px;color:var(--wm)">Adm. Municipal</td><td class="tdm">480.000.000</td><td class="tdm">15.0%</td><td class="tdm">15/Mai/2024</td><td class="tdm">15/Mai/2026</td><td><div class="pb" style="width:65px"><div class="pf" style="width:100%;background:var(--cr)"></div></div><span style="font-size:8.5px;color:var(--cr)"> 100%</span></td><td class="tdm">480.000.000</td><td><span class="rb crit">Vencido</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ═══ GESTÃO DE CONTRATOS ═══ -->
+    <div id="mod-contratos" style="display:none">
+      <div class="kg4">
+        <div class="kc gold"><div class="kl">Contratos Activos</div><div class="kv">24</div><span class="kd up">+3 este mês</span></div>
+        <div class="kc am"><div class="kl">Em Formalização</div><div class="kv">3</div><span class="kd nt">Aguardam assinatura</span></div>
+        <div class="kc em"><div class="kl">Assinados Digitalmente</div><div class="kv">21</div><span class="kd up">87.5%</span></div>
+        <div class="kc cr"><div class="kl">Em Incumprimento</div><div class="kv">3</div><span class="kd dn">Acção em curso</span></div>
+      </div>
+      <div class="pn"><div class="pnh"><div class="pnt">Contratos em Formalização — Pendentes de Assinatura</div><span class="ptg am">3 Pendentes</span></div>
+        <div class="tw"><table>
+          <thead><tr><th>Referência</th><th>Mutuário</th><th>Modelo</th><th>Valor (Kz)</th><th>Taxa</th><th>Estado Formalização</th><th>Data Limite</th><th>Acção</th></tr></thead>
+          <tbody>
+            <tr><td class="tdm tdp">MAI-2026-025</td><td>Gov. Prov. Bié</td><td><span class="tbt-OT">Modelo A</span></td><td class="tdm">620.000.000</td><td class="tdm">14.0%</td><td><span class="rb warn">Aguarda assinatura do mutuário</span></td><td class="tdm" style="color:var(--am)">20/Jun/2026</td><td><button class="btn bg2" style="font-size:8.5px;padding:3px 8px">Reenviar</button></td></tr>
+            <tr><td class="tdm tdp">MAI-2026-026</td><td>Constroangola SA</td><td><span class="tbt-cash">Modelo B</span></td><td class="tdm">1.800.000.000</td><td class="tdm">17.0%</td><td><span class="rb warn">Aguarda registo de garantia</span></td><td class="tdm" style="color:var(--am)">25/Jun/2026</td><td><button class="btn bg2" style="font-size:8.5px;padding:3px 8px">Verificar</button></td></tr>
+            <tr><td class="tdm tdp">MAI-2026-027</td><td>Adm. Mun. Viana</td><td><span class="tbt-OT">Modelo A</span></td><td class="tdm">340.000.000</td><td class="tdm">15.0%</td><td><span class="rb warn">Aguarda escritura pública</span></td><td class="tdm" style="color:var(--am)">30/Jun/2026</td><td><button class="btn bg2" style="font-size:8.5px;padding:3px 8px">Agendar</button></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="pn"><div class="pnh"><div class="pnt">Todos os Contratos — Histórico Completo</div>
+        <button class="btn bo2" style="font-size:8.5px;padding:4px 9px">⬇ Exportar</button>
+        <button class="btn bg2" style="font-size:8.5px;padding:4px 9px">+ Novo Contrato</button>
+      </div>
+        <div class="tabbar"><div class="tabbt on">Todos (27)</div><div class="tabbt">Em Vigor (21)</div><div class="tabbt">Em Formalização (3)</div><div class="tabbt">Encerrados (3)</div></div>
+        <div class="tw"><table>
+          <thead><tr><th>Referência</th><th>Data Celebração</th><th>Mutuário</th><th>Objecto</th><th>Valor (Kz)</th><th>Prazo</th><th>Garantia Principal</th><th>Assinatura</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr><td class="tdm tdp">MAI-2026-024</td><td class="tdm">16/Jun/2026</td><td>Gov. Prov. Luanda</td><td style="font-size:9.5px">Financiamento infraest.</td><td class="tdm">1.200.000.000</td><td class="tdm">36 meses</td><td style="font-size:9.5px">Cessão de receitas</td><td><span class="rb ok">Digital ✓</span></td><td><span class="rb low">Em Vigor</span></td></tr>
+            <tr><td class="tdm tdp">MAI-2026-021</td><td class="tdm">10/Mar/2026</td><td>Emp. Nacional Energia</td><td style="font-size:9.5px">Financiamento reabilitação</td><td class="tdm">3.500.000.000</td><td class="tdm">36 meses</td><td style="font-size:9.5px">Garantia bancária BAI</td><td><span class="rb ok">Digital ✓</span></td><td><span class="rb med">Em Vigor</span></td></tr>
+            <tr><td class="tdm tdp">MAI-2025-038</td><td class="tdm">01/Ago/2025</td><td>Gov. Prov. Cuanza Sul</td><td style="font-size:9.5px">Equipamento hospitalar</td><td class="tdm">850.000.000</td><td class="tdm">24 meses</td><td style="font-size:9.5px">Cessão receitas OGE</td><td><span class="rb ok">Escritura ✓</span></td><td><span class="rb hi">Em Risco</span></td></tr>
+            <tr><td class="tdm tdp">MAI-2024-018</td><td class="tdm">01/Jan/2024</td><td>Ministério da Saúde</td><td style="font-size:9.5px">Material médico-hospitalar</td><td class="tdm">5.800.000.000</td><td class="tdm">36 meses</td><td style="font-size:9.5px">Consignação dotação OGE</td><td><span class="rb ok">Escritura ✓</span></td><td><span class="rb low">Em Vigor</span></td></tr>
+            <tr><td class="tdm tdp">MAI-2022-003</td><td class="tdm">15/Fev/2022</td><td>Construções Sonangol SA</td><td style="font-size:9.5px">Projecto habitacional</td><td class="tdm">4.200.000.000</td><td class="tdm">48 meses</td><td style="font-size:9.5px">Hipoteca terreno</td><td><span class="rb ok">Escritura ✓</span></td><td><span class="rb ok">Liquidado</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ═══ GESTÃO DE RISCO ═══ -->
+    <div id="mod-risco" style="display:none">
+      <div class="kg4">
+        <div class="kc em"><div class="kl">Risco Baixo</div><div class="kv">11<span class="u">contratos</span></div><span class="kd up">28.1 Mil M Kz</span></div>
+        <div class="kc am"><div class="kl">Risco Médio</div><div class="kv">8<span class="u">contratos</span></div><span class="kd nt">7.4 Mil M Kz</span></div>
+        <div class="kc cr"><div class="kl">Risco Alto</div><div class="kv">3<span class="u">contratos</span></div><span class="kd dn">2.8 Mil M Kz</span></div>
+        <div class="kc cr" style="border-color:rgba(212,51,82,.5)"><div class="kl">Risco Crítico</div><div class="kv">2<span class="u">contratos</span></div><span class="kd dn">0.9 Mil M Kz</span></div>
+      </div>
+      <div class="pn"><div class="pnh"><div class="pnt">Rating por Tipo de Entidade — Classificação Interna</div><span class="ptg">Actualizado Jun 2026</span></div>
+        <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;padding:16px">
+          <div style="text-align:center;padding:14px;background:rgba(7,9,12,.5);border:1px solid rgba(201,168,76,.1);border-radius:8px">
+            <div style="font-size:8.5px;color:var(--wm);text-transform:uppercase;margin-bottom:8px">Gov. Central</div>
+            <div style="font-size:28px;font-weight:800;color:var(--em)">A+</div>
+            <div style="font-size:8.5px;color:var(--wm);margin-top:4px">3 contratos</div></div>
+          <div style="text-align:center;padding:14px;background:rgba(7,9,12,.5);border:1px solid rgba(201,168,76,.1);border-radius:8px">
+            <div style="font-size:8.5px;color:var(--wm);text-transform:uppercase;margin-bottom:8px">Ministérios</div>
+            <div style="font-size:28px;font-weight:800;color:var(--em)">A</div>
+            <div style="font-size:8.5px;color:var(--wm);margin-top:4px">5 contratos</div></div>
+          <div style="text-align:center;padding:14px;background:rgba(7,9,12,.5);border:1px solid rgba(201,168,76,.1);border-radius:8px">
+            <div style="font-size:8.5px;color:var(--wm);text-transform:uppercase;margin-bottom:8px">Gov. Prov.</div>
+            <div style="font-size:28px;font-weight:800;color:var(--gold)">B+</div>
+            <div style="font-size:8.5px;color:var(--wm);margin-top:4px">8 contratos</div></div>
+          <div style="text-align:center;padding:14px;background:rgba(7,9,12,.5);border:1px solid rgba(201,168,76,.1);border-radius:8px">
+            <div style="font-size:8.5px;color:var(--wm);text-transform:uppercase;margin-bottom:8px">Adm. Mun.</div>
+            <div style="font-size:28px;font-weight:800;color:var(--am)">B-</div>
+            <div style="font-size:8.5px;color:var(--wm);margin-top:4px">3 contratos</div></div>
+          <div style="text-align:center;padding:14px;background:rgba(7,9,12,.5);border:1px solid rgba(201,168,76,.1);border-radius:8px">
+            <div style="font-size:8.5px;color:var(--wm);text-transform:uppercase;margin-bottom:8px">Emp. Pública</div>
+            <div style="font-size:28px;font-weight:800;color:var(--am)">C+</div>
+            <div style="font-size:8.5px;color:var(--wm);margin-top:4px">3 contratos</div></div>
+          <div style="text-align:center;padding:14px;background:rgba(7,9,12,.5);border:1px solid rgba(201,168,76,.1);border-radius:8px">
+            <div style="font-size:8.5px;color:var(--wm);text-transform:uppercase;margin-bottom:8px">Emp. Privada</div>
+            <div style="font-size:28px;font-weight:800;color:var(--cr)">C</div>
+            <div style="font-size:8.5px;color:var(--wm);margin-top:4px">2 contratos</div></div>
+        </div>
+      </div>
+      <div class="mg2">
+        <div class="pn"><div class="pnh"><div class="pnt">Scoring Detalhado por Indicador</div><span class="ptg">Ponderação Interna</span></div>
+          <div class="tw"><table>
+            <thead><tr><th>Indicador de Risco</th><th>Peso</th><th>Score Médio</th><th>Tendência</th><th>Avaliação</th></tr></thead>
+            <tbody>
+              <tr><td class="tdp">Histórico de Pagamento</td><td class="tdm">30%</td><td style="color:var(--em);font-weight:700">8.2 / 10</td><td style="color:var(--em)">▲ Estável</td><td><span class="rb ok">Positivo</span></td></tr>
+              <tr><td class="tdp">Situação Financeira</td><td class="tdm">25%</td><td style="color:var(--gold);font-weight:700">6.8 / 10</td><td style="color:var(--wm)">→ Neutro</td><td><span class="rb warn">Neutro</span></td></tr>
+              <tr><td class="tdp">Risco Político / Institucional</td><td class="tdm">20%</td><td style="color:var(--gold);font-weight:700">6.5 / 10</td><td style="color:var(--wm)">→ Neutro</td><td><span class="rb warn">Neutro</span></td></tr>
+              <tr><td class="tdp">Risco Contratual</td><td class="tdm">10%</td><td style="color:var(--em);font-weight:700">7.9 / 10</td><td style="color:var(--em)">▲ Melhoria</td><td><span class="rb ok">Positivo</span></td></tr>
+              <tr><td class="tdp">Risco de Execução</td><td class="tdm">10%</td><td style="color:var(--am);font-weight:700">5.4 / 10</td><td style="color:var(--am)">▼ Atenção</td><td><span class="rb hi">Negativo</span></td></tr>
+              <tr><td class="tdp">Risco de Liquidez</td><td class="tdm">5%</td><td style="color:var(--cr);font-weight:700">4.1 / 10</td><td style="color:var(--cr)">▼ Deterioração</td><td><span class="rb crit">Crítico</span></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div class="pn"><div class="pnh"><div class="pnt">Evolução do Score de Risco</div></div><div class="cw"><canvas id="ch-risk" style="max-height:200px"></canvas></div></div>
+      </div>
+      <div class="pn"><div class="pnh"><div class="pnt">Contratos em Vigilância Reforçada</div><span class="ptg cr">2 Críticos · 3 Alto Risco</span></div>
+        <div class="tw"><table>
+          <thead><tr><th>Referência</th><th>Mutuário</th><th>Valor em Risco (Kz)</th><th>Score</th><th>Motivo Principal</th><th>Acção Recomendada</th><th>Prazo</th></tr></thead>
+          <tbody>
+            <tr><td class="tdm tdp">MAI-2024-009</td><td>Adm. Mun. Cacuaco</td><td class="tdm" style="color:var(--cr)">480.000.000</td><td><span class="rb crit">2.8/10</span></td><td>Prestações em atraso h. 4 meses</td><td style="font-size:9.5px">Execução de garantia</td><td style="color:var(--cr)">Imediato</td></tr>
+            <tr><td class="tdm tdp">MAI-2023-017</td><td>Transportes Maputo Lda.</td><td class="tdm" style="color:var(--cr)">420.000.000</td><td><span class="rb crit">3.1/10</span></td><td>Cessação parcial de actividade</td><td style="font-size:9.5px">Negociação / reestruturação</td><td style="color:var(--cr)">Imediato</td></tr>
+            <tr><td class="tdm tdp">MAI-2025-038</td><td>Gov. Prov. Cuanza Sul</td><td class="tdm" style="color:var(--am)">850.000.000</td><td><span class="rb hi">4.2/10</span></td><td>Atraso na entrega de OT</td><td style="font-size:9.5px">Acordo de reembolso parcial</td><td style="color:var(--am)">7 dias</td></tr>
+            <tr><td class="tdm tdp">MAI-2026-021</td><td>Emp. Nacional Energia</td><td class="tdm" style="color:var(--am)">3.500.000.000</td><td><span class="rb hi">4.8/10</span></td><td>Atraso 5 dias na última prestação</td><td style="font-size:9.5px">Monitorização diária</td><td style="color:var(--am)">30 dias</td></tr>
+            <tr><td class="tdm tdp">MAI-2024-015</td><td>Adm. Mun. Samba</td><td class="tdm" style="color:var(--am)">280.000.000</td><td><span class="rb hi">5.0/10</span></td><td>Score de liquidez degradado</td><td style="font-size:9.5px">Revisão da garantia</td><td style="color:var(--am)">15 dias</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ═══ GARANTIAS ═══ -->
+    <div id="mod-garantias" style="display:none">
+      <div class="kg4">
+        <div class="kc gold"><div class="kl">Garantias Activas</div><div class="kv">31</div><span class="kd up">Índice cobertura 118%</span></div>
+        <div class="kc am"><div class="kl">A Renovar (30 dias)</div><div class="kv">3</div><span class="kd nt">Alertas emitidos</span></div>
+        <div class="kc em"><div class="kl">Valor Total Garantias</div><div class="kv">46.3<span class="u">Mil M Kz</span></div><span class="kd up">vs 39.2 crédito</span></div>
+        <div class="kc cr"><div class="kl">Garantias Executadas</div><div class="kv">2</div><span class="kd dn">Processos em curso</span></div>
+      </div>
+      <div class="mg2">
+        <div class="pn"><div class="pnh"><div class="pnt">Garantias por Tipo de Instrumento</div></div><div class="cw" style="display:flex;align-items:center;justify-content:center"><canvas id="ch-guar" style="max-height:200px;max-width:200px"></canvas></div></div>
+        <div class="pn"><div class="pnh"><div class="pnt">Indicadores de Cobertura</div></div>
+          <div style="padding:14px;display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:rgba(7,9,12,.5);border-radius:6px;border:1px solid rgba(201,168,76,.08)">
+              <div><div style="font-size:10.5px;font-weight:600;color:var(--wk)">Garantias Bancárias</div><div style="font-size:8.5px;color:var(--wm)">14 instrumentos activos</div></div>
+              <div style="text-align:right"><div style="font-size:13px;font-weight:700;color:var(--gold);font-family:monospace">18.400.000.000 Kz</div><div style="font-size:8.5px;color:var(--em)">Cobertura: 124%</div></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:rgba(7,9,12,.5);border-radius:6px;border:1px solid rgba(201,168,76,.08)">
+              <div><div style="font-size:10.5px;font-weight:600;color:var(--wk)">Cessões de Crédito</div><div style="font-size:8.5px;color:var(--wm)">9 contratos de cessão</div></div>
+              <div style="text-align:right"><div style="font-size:13px;font-weight:700;color:var(--gold);font-family:monospace">14.200.000.000 Kz</div><div style="font-size:8.5px;color:var(--em)">Cobertura: 112%</div></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:rgba(7,9,12,.5);border-radius:6px;border:1px solid rgba(201,168,76,.08)">
+              <div><div style="font-size:10.5px;font-weight:600;color:var(--wk)">Hipotecas</div><div style="font-size:8.5px;color:var(--wm)">5 imóveis registados</div></div>
+              <div style="text-align:right"><div style="font-size:13px;font-weight:700;color:var(--gold);font-family:monospace">8.900.000.000 Kz</div><div style="font-size:8.5px;color:var(--em)">Cobertura: 118%</div></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:rgba(7,9,12,.5);border-radius:6px;border:1px solid rgba(201,168,76,.08)">
+              <div><div style="font-size:10.5px;font-weight:600;color:var(--wk)">Penhores e Avales</div><div style="font-size:8.5px;color:var(--wm)">3 instrumentos</div></div>
+              <div style="text-align:right"><div style="font-size:13px;font-weight:700;color:var(--gold);font-family:monospace">4.800.000.000 Kz</div><div style="font-size:8.5px;color:var(--am)">Cobertura: 96%</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pn"><div class="pnh"><div class="pnt">Registo de Garantias — Detalhe Completo</div><button class="btn bg2" style="font-size:8.5px;padding:5px 9px">+ Registar Garantia</button></div>
+        <div class="tw"><table>
+          <thead><tr><th>Ref.</th><th>Contrato Associado</th><th>Tipo de Garantia</th><th>Garante / Bem</th><th>Valor (Kz)</th><th>Data Início</th><th>Validade</th><th>Cobertura</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr><td class="tdm tdp">GAR-001</td><td class="tdm">MAI-2026-024</td><td>Cessão de Receitas</td><td style="font-size:9.5px">Receitas fiscais Gov. Luanda</td><td class="tdm">1.450.000.000</td><td class="tdm">01/Jul/2026</td><td class="tdm">31/Jul/2029</td><td style="color:var(--em)">121%</td><td><span class="rb ok">Activa</span></td></tr>
+            <tr><td class="tdm tdp">GAR-002</td><td class="tdm">MAI-2026-021</td><td>Garantia Bancária</td><td style="font-size:9.5px">BAI — Carta de garantia</td><td class="tdm">4.000.000.000</td><td class="tdm">15/Mar/2026</td><td class="tdm">15/Mar/2029</td><td style="color:var(--em)">114%</td><td><span class="rb ok">Activa</span></td></tr>
+            <tr><td class="tdm tdp">GAR-003</td><td class="tdm">MAI-2024-018</td><td>Consignação OGE</td><td style="font-size:9.5px">Dotação Min. Saúde — OGE 2026</td><td class="tdm">6.200.000.000</td><td class="tdm">01/Jan/2024</td><td class="tdm">31/Dez/2026</td><td style="color:var(--em)">107%</td><td><span class="rb warn">Renovação pendente</span></td></tr>
+            <tr><td class="tdm tdp">GAR-004</td><td class="tdm">MAI-2025-031</td><td>Hipoteca</td><td style="font-size:9.5px">Imóvel — Rua da Missão, Luanda</td><td class="tdm">2.800.000.000</td><td class="tdm">01/Jun/2025</td><td class="tdm">01/Jun/2028</td><td style="color:var(--em)">133%</td><td><span class="rb ok">Activa · Registada</span></td></tr>
+            <tr><td class="tdm tdp">GAR-005</td><td class="tdm">MAI-2024-009</td><td>Penhor de Equipamentos</td><td style="font-size:9.5px">Frota veículos Adm. Cacuaco</td><td class="tdm">380.000.000</td><td class="tdm">15/Mai/2024</td><td class="tdm">15/Mai/2026</td><td style="color:var(--am)">79%</td><td><span class="rb crit">Em execução</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ═══ COBRANÇA & RECUPERAÇÃO ═══ -->
+    <div id="mod-cobranca" style="display:none">
+      <div class="kg4">
+        <div class="kc gold"><div class="kl">A Vencer em 30 dias</div><div class="kv">6<span class="u">contratos</span></div><span class="kd nt">2.8 Mil M Kz</span></div>
+        <div class="kc am"><div class="kl">Cobrança Amigável</div><div class="kv">3<span class="u">processos</span></div><span class="kd nt">Em negociação</span></div>
+        <div class="kc cr"><div class="kl">Cobrança Coerciva</div><div class="kv">1<span class="u">processo</span></div><span class="kd dn">Tribunal activo</span></div>
+        <div class="kc em"><div class="kl">Recuperado (mês)</div><div class="kv">430<span class="u">M Kz</span></div><span class="kd up">+18%</span></div>
+      </div>
+      <div class="pn"><div class="pnh"><div class="pnt">Calendário de Vencimentos — Junho / Julho 2026</div></div>
+        <div class="tw"><table>
+          <thead><tr><th>Data Venc.</th><th>Contrato</th><th>Mutuário</th><th>Valor Prestação (Kz)</th><th>Capital</th><th>Juros</th><th>Fase Cobrança</th><th>Estado</th><th>Contactos</th></tr></thead>
+          <tbody>
+            <tr><td class="tdm" style="color:var(--cr)">19/Jun/2026 ⚠</td><td class="tdm tdp">MAI-2025-038</td><td>Gov. Prov. Cuanza Sul</td><td class="tdm">212.500.000</td><td class="tdm">148.000.000</td><td class="tdm">64.500.000</td><td><span class="rb warn">Amigável</span></td><td><span class="rb hi">Em risco</span></td><td style="font-size:9.5px">4 emails · 2 chamadas</td></tr>
+            <tr><td class="tdm" style="color:var(--am)">22/Jun/2026</td><td class="tdm tdp">MAI-2026-021</td><td>Emp. Nacional Energia</td><td class="tdm">875.000.000</td><td class="tdm">583.000.000</td><td class="tdm">292.000.000</td><td><span class="rb ok">Regular</span></td><td><span class="rb med">Em curso</span></td><td style="font-size:9.5px">2 emails</td></tr>
+            <tr><td class="tdm">28/Jun/2026</td><td class="tdm tdp">MAI-2024-018</td><td>Ministério da Saúde</td><td class="tdm">1.450.000.000</td><td class="tdm">1.043.000.000</td><td class="tdm">407.000.000</td><td><span class="rb ok">Regular</span></td><td><span class="rb low">Normal</span></td><td style="font-size:9.5px">1 email</td></tr>
+            <tr><td class="tdm" style="color:var(--cr)">VENCIDO</td><td class="tdm tdp">MAI-2024-009</td><td>Adm. Mun. Cacuaco</td><td class="tdm">120.000.000</td><td class="tdm">80.000.000</td><td class="tdm">40.000.000</td><td><span class="rb crit">Coerciva</span></td><td><span class="rb crit">Tribunal</span></td><td style="font-size:9.5px">Proc. n.º 127/26</td></tr>
+            <tr><td class="tdm">10/Jul/2026</td><td class="tdm tdp">MAI-2025-031</td><td>Construtora Atlântico LDA</td><td class="tdm">437.500.000</td><td class="tdm">262.500.000</td><td class="tdm">175.000.000</td><td><span class="rb ok">Regular</span></td><td><span class="rb low">Normal</span></td><td style="font-size:9.5px">Alerta 30d enviado</td></tr>
+            <tr><td class="tdm">15/Jul/2026</td><td class="tdm tdp">MAI-2026-024</td><td>Gov. Prov. Luanda</td><td class="tdm">293.000.000</td><td class="tdm">200.000.000</td><td class="tdm">93.000.000</td><td><span class="rb ok">Regular</span></td><td><span class="rb low">Normal</span></td><td style="font-size:9.5px">Alerta 30d enviado</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="pn"><div class="pnh"><div class="pnt">Histórico de Recuperação — 2026</div><span class="ptg em">Acumulado do Ano</span></div><div class="cw"><canvas id="ch-rec" style="max-height:180px"></canvas></div></div>
+    </div>
+
+    <!-- ═══ FONTES DE FINANCIAMENTO ═══ -->
+    <div id="mod-fontes" style="display:none">
+      <div class="kg4">
+        <div class="kc gold"><div class="kl">Total Captado</div><div class="kv">47.8<span class="u">Mil M Kz</span></div><span class="kd up">4 fontes activas</span></div>
+        <div class="kc bl"><div class="kl">Linhas Bancárias</div><div class="kv">33.7<span class="u">Mil M Kz</span></div><span class="kd nt">3 bancos</span></div>
+        <div class="kc em"><div class="kl">Capital Próprio</div><div class="kv">16.2<span class="u">Mil M Kz</span></div><span class="kd up">Acionista</span></div>
+        <div class="kc am"><div class="kl">Investidores Privados</div><div class="kv">9.1<span class="u">Mil M Kz</span></div><span class="kd nt">Debêntures</span></div>
+      </div>
+      <div class="mg2">
+        <div class="pn"><div class="pnh"><div class="pnt">Linhas de Crédito Bancárias</div><span class="ptg">3 Activas</span></div>
+          <div class="tw"><table>
+            <thead><tr><th>Banco</th><th>Linha / Produto</th><th>Valor Total</th><th>Utilizado</th><th>Disponível</th><th>Taxa</th><th>Vencimento</th><th>Garantia Dada</th></tr></thead>
+            <tbody>
+              <tr><td class="tdp">BFA</td><td style="font-size:9.5px">Linha Fomento Empresarial</td><td class="tdm">20.000.000.000</td><td><div class="pb" style="width:70px;display:inline-block"><div class="pf" style="width:93%"></div></div><span style="font-size:8.5px"> 93%</span></td><td class="tdm" style="color:var(--em)">1.400.000.000</td><td class="tdm">14.5%</td><td class="tdm">Mar 2028</td><td style="font-size:9.5px">Hipoteca sede</td></tr>
+              <tr><td class="tdp">BAI</td><td style="font-size:9.5px">Crédito Sindicado</td><td class="tdm">8.500.000.000</td><td><div class="pb" style="width:70px;display:inline-block"><div class="pf" style="width:60%"></div></div><span style="font-size:8.5px"> 60%</span></td><td class="tdm" style="color:var(--em)">3.400.000.000</td><td class="tdm">15.2%</td><td class="tdm">Jun 2027</td><td style="font-size:9.5px">Carteira crédito</td></tr>
+              <tr><td class="tdp">BPC</td><td style="font-size:9.5px">Linha Especial Estado</td><td class="tdm">5.200.000.000</td><td><div class="pb" style="width:70px;display:inline-block"><div class="pf" style="width:40%"></div></div><span style="font-size:8.5px"> 40%</span></td><td class="tdm" style="color:var(--em)">3.120.000.000</td><td class="tdm">13.5%</td><td class="tdm">Dez 2030</td><td style="font-size:9.5px">Cessão receitas</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div class="pn"><div class="pnh"><div class="pnt">Capital Próprio e Terceiros</div></div>
+          <div class="fl">
+            <div class="fi"><div class="fico eq">🏢</div><div class="fin"><div class="fnm">Alpinea Investimentos — Acionista Principal</div><div class="fdt">Acordo de suprimentos · Sujeito a deliberação dos sócios · Prazo indefinido</div></div><div class="fam"><div class="fav">16.200M Kz</div><div class="fap">33.9% do total</div></div></div>
+            <div class="fi"><div class="fico pr">👤</div><div class="fin"><div class="fnm">Investidor Privado A — Debêntures Série A</div><div class="fdt">Taxa: 16% a.a. · Cupão anual · Vencimento: Jul/2027</div></div><div class="fam"><div class="fav">5.400M Kz</div><div class="fap">11.3%</div></div></div>
+            <div class="fi"><div class="fico pr">🏛️</div><div class="fin"><div class="fnm">Fundo de Pensões XYZ — Obrigações</div><div class="fdt">Taxa: 15.5% a.a. · Vencimento: Out/2028 · Garantia: carteira crédito</div></div><div class="fam"><div class="fav">3.700M Kz</div><div class="fap">7.7%</div></div></div>
+            <div class="fi"><div class="fico bk">🤝</div><div class="fin"><div class="fnm">Parceiros Estratégicos Regionais</div><div class="fdt">Co-financiamento · Condições variáveis · Acordos específicos por operação</div></div><div class="fam"><div class="fav">4.000M Kz</div><div class="fap">8.4%</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PROJETOS FINANCIADOS ═══ -->
+    <div id="mod-projetos" style="display:none">
+      <div class="kg4">
+        <div class="kc gold"><div class="kl">Projectos em Carteira</div><div class="kv">18</div><span class="kd up">Total activos</span></div>
+        <div class="kc em"><div class="kl">Em Execução</div><div class="kv">14</div><span class="kd up">77.8%</span></div>
+        <div class="kc am"><div class="kl">Em Arranque</div><div class="kv">3</div><span class="kd nt">Mobilização em curso</span></div>
+        <div class="kc cr"><div class="kl">Com Desvios</div><div class="kv">2</div><span class="kd dn">Acção correctiva</span></div>
+      </div>
+      <div class="mg2">
+        <div class="pn"><div class="pnh"><div class="pnt">Distribuição por Sector</div></div><div class="cw" style="display:flex;align-items:center;justify-content:center"><canvas id="ch-proj" style="max-height:190px;max-width:190px"></canvas></div></div>
+        <div class="pn"><div class="pnh"><div class="pnt">Volume por Província</div></div>
+          <div class="pgd" style="grid-template-columns:repeat(4,1fr)">
+            <div class="pi"><div class="pin">Luanda</div><div class="piv">7 proj.</div><div class="pib"><div class="pibf" style="width:100%"></div></div></div>
+            <div class="pi"><div class="pin">Cuanza Sul</div><div class="piv">3 proj.</div><div class="pib"><div class="pibf" style="width:43%"></div></div></div>
+            <div class="pi"><div class="pin">Malanje</div><div class="piv">2 proj.</div><div class="pib"><div class="pibf" style="width:29%"></div></div></div>
+            <div class="pi"><div class="pin">Benguela</div><div class="piv">2 proj.</div><div class="pib"><div class="pibf" style="width:29%"></div></div></div>
+            <div class="pi"><div class="pin">Huambo</div><div class="piv">2 proj.</div><div class="pib"><div class="pibf" style="width:29%"></div></div></div>
+            <div class="pi"><div class="pin">Cabinda</div><div class="piv">1 proj.</div><div class="pib"><div class="pibf" style="width:14%"></div></div></div>
+            <div class="pi"><div class="pin">Uíge</div><div class="piv">1 proj.</div><div class="pib"><div class="pibf" style="width:14%"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="pn"><div class="pnh"><div class="pnt">Projectos Financiados — Detalhe</div><button class="btn bg2" style="font-size:8.5px;padding:5px 9px">+ Registar Projecto</button></div>
+        <div class="tw"><table>
+          <thead><tr><th>Código</th><th>Designação do Projecto</th><th>Entidade Executora</th><th>Beneficiário</th><th>Localização</th><th>Sector</th><th>Valor Global</th><th>Financiado</th><th>Execução</th><th>Contrato</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr><td class="tdm tdp">PRJ-001</td><td>Reabilitação Hospital Central de Luanda</td><td style="font-size:9.5px">Constroangola SA</td><td style="font-size:9.5px">Gov. Prov. Luanda</td><td style="font-size:9.5px">Luanda</td><td style="font-size:9.5px">Saúde</td><td class="tdm">1.800.000.000</td><td class="tdm">1.200.000.000</td><td><div class="pb" style="width:60px"><div class="pf" style="width:35%"></div></div><span style="font-size:8.5px"> 35%</span></td><td class="tdm">MAI-2026-024</td><td><span class="rb low">Em exec.</span></td></tr>
+            <tr><td class="tdm tdp">PRJ-002</td><td>Rede de Distribuição Eléctrica — Cunhinga</td><td style="font-size:9.5px">Emp. Nac. Energia</td><td style="font-size:9.5px">Min. Energia</td><td style="font-size:9.5px">Bié</td><td style="font-size:9.5px">Energia</td><td class="tdm">4.200.000.000</td><td class="tdm">3.500.000.000</td><td><div class="pb" style="width:60px"><div class="pf" style="width:62%"></div></div><span style="font-size:8.5px"> 62%</span></td><td class="tdm">MAI-2026-021</td><td><span class="rb med">Em exec.</span></td></tr>
+            <tr><td class="tdm tdp">PRJ-003</td><td>Mercado Municipal — Sumbe</td><td style="font-size:9.5px">Técnica e Obras Lda.</td><td style="font-size:9.5px">Gov. Prov. C. Sul</td><td style="font-size:9.5px">Cuanza Sul</td><td style="font-size:9.5px">Infraestrutura</td><td class="tdm">1.020.000.000</td><td class="tdm">850.000.000</td><td><div class="pb" style="width:60px"><div class="pf" style="width:88%;background:var(--am)"></div></div><span style="font-size:8.5px;color:var(--am)"> 88%</span></td><td class="tdm">MAI-2025-038</td><td><span class="rb hi">Desvio</span></td></tr>
+            <tr><td class="tdm tdp">PRJ-004</td><td>Equipamentos Laboratoriais Nacionais</td><td style="font-size:9.5px">MediSupply Lda.</td><td style="font-size:9.5px">Min. Saúde</td><td style="font-size:9.5px">Nacional</td><td style="font-size:9.5px">Saúde</td><td class="tdm">6.960.000.000</td><td class="tdm">5.800.000.000</td><td><div class="pb" style="width:60px"><div class="pf" style="width:71%"></div></div><span style="font-size:8.5px"> 71%</span></td><td class="tdm">MAI-2024-018</td><td><span class="rb low">Em exec.</span></td></tr>
+            <tr><td class="tdm tdp">PRJ-005</td><td>Conjunto Habitacional Cacuaco Norte</td><td style="font-size:9.5px">Atlântico Construções</td><td style="font-size:9.5px">Adm. Mun. Cacuaco</td><td style="font-size:9.5px">Luanda Norte</td><td style="font-size:9.5px">Habitação</td><td class="tdm">2.520.000.000</td><td class="tdm">2.100.000.000</td><td><div class="pb" style="width:60px"><div class="pf" style="width:45%"></div></div><span style="font-size:8.5px"> 45%</span></td><td class="tdm">MAI-2025-031</td><td><span class="rb low">Em exec.</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ═══ ALERTAS & NOTIFICAÇÕES ═══ -->
+    <div id="mod-alertas" style="display:none">
+      <div class="kg4">
+        <div class="kc cr"><div class="kl">Alertas Urgentes</div><div class="kv">3</div><span class="kd dn">Acção imediata</span></div>
+        <div class="kc am"><div class="kl">Alertas de Atenção</div><div class="kv">4</div><span class="kd nt">Monitorização</span></div>
+        <div class="kc bl"><div class="kl">Alertas Informativos</div><div class="kv">2</div><span class="kd nt">Sem urgência</span></div>
+        <div class="kc em"><div class="kl">Resolvidos (mês)</div><div class="kv">14</div><span class="kd up">+3 esta semana</span></div>
+      </div>
+      <div class="pn"><div class="pnh"><div class="pnt">Todos os Alertas Activos — Centro de Notificações</div>
+        <select style="background:rgba(7,9,12,.7);border:1px solid rgba(201,168,76,.18);border-radius:var(--rs);padding:4px 8px;color:var(--wp);font-size:9.5px">
+          <option>Todos os alertas (9)</option><option>Urgentes (3)</option><option>Atenção (4)</option><option>Informativos (2)</option>
+        </select>
+      </div>
+        <div style="display:flex;flex-direction:column">
+          <div class="ai" style="padding:13px 16px;align-items:flex-start">
+            <div class="aind r" style="margin-top:3px"></div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div class="atit">Prestação vence em 3 dias — Gov. Prov. Cuanza Sul</div><span class="rb crit">Urgente</span></div>
+              <div class="amet">Contrato MAI-2025-038 · Valor: 212.500.000 Kz · 4 tentativas de contacto sem confirmação de pagamento</div>
+              <div style="margin-top:6px;display:flex;gap:6px">
+                <button class="btn bg2" style="font-size:8.5px;padding:3px 8px">Registar contacto</button>
+                <button class="btn bo2" style="font-size:8.5px;padding:3px 8px">Escalar para Jurídico</button>
+                <button class="btn bd2" style="font-size:8.5px;padding:3px 8px">Iniciar cobrança coerciva</button>
+              </div>
+            </div>
+            <div class="ats">16/Jun · 14:32</div>
+          </div>
+          <div class="ai" style="padding:13px 16px;align-items:flex-start">
+            <div class="aind r" style="margin-top:3px"></div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div class="atit">Incumprimento confirmado — Adm. Mun. Cacuaco</div><span class="rb crit">Urgente</span></div>
+              <div class="amet">Contrato MAI-2024-009 · 480M Kz vencidos · Processo judicial n.º 127/26 activo · Execução de garantia em curso</div>
+              <div style="margin-top:6px;display:flex;gap:6px">
+                <button class="btn bo2" style="font-size:8.5px;padding:3px 8px">Ver processo</button>
+                <button class="btn bo2" style="font-size:8.5px;padding:3px 8px">Actualizar estado</button>
+              </div>
+            </div>
+            <div class="ats">16/Jun · 11:15</div>
+          </div>
+          <div class="ai" style="padding:13px 16px;align-items:flex-start">
+            <div class="aind r" style="margin-top:3px"></div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div class="atit">Prazo de assinatura a expirar — MAI-2026-025</div><span class="rb hi">Urgente</span></div>
+              <div class="amet">Gov. Prov. Bié · Prazo limite para assinatura: 20/Jun/2026 · Contrato de 620M Kz em risco de caducidade</div>
+              <div style="margin-top:6px;display:flex;gap:6px">
+                <button class="btn bg2" style="font-size:8.5px;padding:3px 8px">Contactar mutuário</button>
+                <button class="btn bo2" style="font-size:8.5px;padding:3px 8px">Prorrogar prazo</button>
+              </div>
+            </div>
+            <div class="ats">16/Jun · 09:00</div>
+          </div>
+          <div class="ai" style="padding:13px 16px;align-items:flex-start">
+            <div class="aind a" style="margin-top:3px"></div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div class="atit">Garantia bancária a expirar em 29 dias — BAI</div><span class="rb med">Atenção</span></div>
+              <div class="amet">Contrato MAI-2026-021 · Carta de garantia BAI expira em 15/Jul/2026 · Solicitação de renovação necessária</div>
+            </div>
+            <div class="ats">16/Jun · 09:44</div>
+          </div>
+          <div class="ai" style="padding:13px 16px;align-items:flex-start">
+            <div class="aind a" style="margin-top:3px"></div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div class="atit">Score de risco degradado — Emp. Nacional Energia</div><span class="rb med">Atenção</span></div>
+              <div class="amet">Score baixou de 5.8 para 4.8 após atraso de 5 dias na prestação de Junho. Reclassificação: Médio → Alto</div>
+            </div>
+            <div class="ats">15/Jun · 17:20</div>
+          </div>
+          <div class="ai" style="padding:13px 16px;align-items:flex-start">
+            <div class="aind a" style="margin-top:3px"></div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div class="atit">OT recebidas — análise de valor pendente</div><span class="rb med">Atenção</span></div>
+              <div class="amet">OT-2026-002 · Emp. Nac. Energia entregou OT no valor facial de 1.200M Kz · Desconto negociado: -8% · Diferença: 96M Kz</div>
+            </div>
+            <div class="ats">16/Jun · 09:50</div>
+          </div>
+          <div class="ai" style="padding:13px 16px;align-items:flex-start">
+            <div class="aind a" style="margin-top:3px"></div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div class="atit">Dotação OGE — renovação pendente</div><span class="rb med">Atenção</span></div>
+              <div class="amet">GAR-003 · Consignação dotação Min. Saúde expira a 31/Dez/2026 · Processo de renovação para 2027 deve iniciar-se agora</div>
+            </div>
+            <div class="ats">14/Jun · 10:00</div>
+          </div>
+          <div class="ai" style="padding:13px 16px;align-items:flex-start">
+            <div class="aind g" style="margin-top:3px"></div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div class="atit">Contrato assinado digitalmente — MAI-2026-024</div><span class="rb ok">Informação</span></div>
+              <div class="amet">Gov. Prov. Luanda · 1.200M Kz · Pronto para desembolso · Garantia registada ✓</div>
+            </div>
+            <div class="ats">15/Jun · 16:30</div>
+          </div>
+          <div class="ai" style="padding:13px 16px;align-items:flex-start">
+            <div class="aind b" style="margin-top:3px"></div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div class="atit">Nova linha de crédito BFA disponível</div><span class="rb ft">Informação</span></div>
+              <div class="amet">Linha Fomento Empresarial · 1.400M Kz disponíveis · Taxa: 14.5% · Disponível para nova aplicação</div>
+            </div>
+            <div class="ats">15/Jun · 09:00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+const MODS=['dashboard','elaboracao','passivo','clientes','comissoes','titulos','bi','carteira','contratos','risco','garantias','cobranca','fontes','alertas','projetos'];
+const TITLES={dashboard:'Dashboard Executivo',elaboracao:'Elaboração de Contratos',passivo:'Gestão do Passivo Financeiro',clientes:'Crédito Cedido — Gestão Individual de Clientes',comissoes:'Taxas, Juros & Comissões',titulos:'Títulos da Dívida Pública — OT & BT',bi:'Business Intelligence & Analytics',carteira:'Carteira de Crédito',contratos:'Gestão de Contratos',risco:'Gestão de Risco ',garantias:'Garantias',cobranca:'Cobrança & Recuperação',fontes:'Fontes de Financiamento',alertas:'Alertas & Notificações',projetos:'Projetos Financiados'};
+const niEls=document.querySelectorAll('.ni');
+
+function sw(id,el){
+  MODS.forEach(m=>{const e=document.getElementById('mod-'+m);if(e)e.style.display='none'});
+  const el2=document.getElementById('mod-'+id);if(el2)el2.style.display='';
+  document.getElementById('ptitle').textContent=TITLES[id]||id;
+  document.getElementById('pbc').textContent='MAIOMBE / '+(TITLES[id]||id)+' · Jun 2026';
+  niEls.forEach(n=>n.classList.remove('on'));
+  document.querySelectorAll('.mt').forEach(t=>t.classList.remove('on'));
+  if(el)el.classList.add('on');
+  if(id==='bi')initBI();if(id==='passivo')initPassivo();if(id==='titulos')initTitulos();
+  if(id==='carteira')initEntity();if(id==='risco')initRisk();if(id==='garantias')initGuar();if(id==='cobranca')initRec();if(id==='projetos')initProj();
+}
+
+// Charts defaults
+Chart.defaults.color='#7888A0';
+Chart.defaults.borderColor='rgba(201,168,76,.065)';
+Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";
+Chart.defaults.font.size=10;
+const gl=()=>({color:'rgba(201,168,76,.055)',drawTicks:false});
+const tt={backgroundColor:'rgba(7,9,12,.97)',borderColor:'rgba(201,168,76,.25)',borderWidth:1,titleColor:'#E5EBF2',bodyColor:'#7888A0',padding:10};
+
+// Portfolio
+(function(){
+  const c=document.getElementById('ch-port');if(!c)return;
+  new Chart(c,{type:'line',data:{labels:['Jun 25','Jul','Ago','Set','Out','Nov','Dez','Jan 26','Fev','Mar','Abr','Mai','Jun 26'],datasets:[
+    {label:'Capital Aplicado',data:[22,24,25,27,28,30,29,32,34,36,37,38,39.2],borderColor:'#C9A84C',backgroundColor:'rgba(201,168,76,.06)',borderWidth:2,tension:.4,fill:true,pointRadius:2.5,pointBackgroundColor:'#C9A84C',pointBorderColor:'#07090C',pointBorderWidth:2},
+    {label:'Capital Captado',data:[25,27,29,31,33,35,36,38,40,42,44,46,47.8],borderColor:'#26B870',backgroundColor:'rgba(38,184,112,.04)',borderWidth:2,tension:.4,fill:true,pointRadius:2.5,pointBackgroundColor:'#26B870',pointBorderColor:'#07090C',pointBorderWidth:2,borderDash:[5,3]},
+    {label:'Crédito Vencido',data:[1.2,1.4,1.5,1.8,2,2.1,2.3,2.5,2.6,2.8,2.9,3,3.1],borderColor:'#D43352',backgroundColor:'rgba(212,51,82,.04)',borderWidth:2,tension:.4,fill:true,pointRadius:2.5,pointBackgroundColor:'#D43352',pointBorderColor:'#07090C',pointBorderWidth:2}
+  ]},options:{responsive:true,maintainAspectRatio:true,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',labels:{boxWidth:8,padding:12}},tooltip:tt},scales:{x:{grid:gl(),ticks:{maxRotation:0}},y:{grid:gl(),ticks:{callback:v=>v+'M'},title:{display:true,text:'Mil M Kz',color:'#364858'}}}}});
+})();
+
+// Composition
+(function(){
+  const c=document.getElementById('ch-comp');if(!c)return;
+  new Chart(c,{type:'doughnut',data:{labels:['Em Curso','A Vencer 30d','Vencido','Liquidado'],datasets:[{data:[32.1,4,3.1,4],backgroundColor:['rgba(201,168,76,.85)','rgba(224,144,32,.85)','rgba(212,51,82,.85)','rgba(38,184,112,.85)'],borderColor:'rgba(7,9,12,.8)',borderWidth:3,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:true,cutout:'67%',plugins:{legend:{position:'bottom',labels:{boxWidth:8,padding:9}},tooltip:tt}}});
+})();
+
+// BI Charts
+let biDone=false;
+function initBI(){if(biDone)return;biDone=true;
+  const cf=document.getElementById('ch-cf');
+  if(cf)new Chart(cf,{type:'bar',data:{labels:['Jun','Jul','Ago','Set','Out','Nov'],datasets:[{label:'Recebimentos',data:[3.4,2.8,4.1,3.9,3.2,5.1],backgroundColor:'rgba(38,184,112,.68)',borderRadius:3},{label:'Pagamentos',data:[2.1,3.2,2.5,1.8,2.4,3.0],backgroundColor:'rgba(212,51,82,.58)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:true,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{boxWidth:8}},tooltip:tt},scales:{x:{grid:gl()},y:{grid:gl(),ticks:{callback:v=>v+'M'}}}}});
+  const sc=document.getElementById('ch-sec');
+  if(sc)new Chart(sc,{type:'pie',data:{labels:['Infra. Pública','Energia','Saúde','Educação','Habitação','Outros'],datasets:[{data:[35,22,18,10,9,6],backgroundColor:['rgba(201,168,76,.85)','rgba(38,184,112,.8)','rgba(91,156,246,.8)','rgba(224,144,32,.8)','rgba(156,100,200,.8)','rgba(70,85,100,.8)'],borderColor:'rgba(7,9,12,.8)',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{boxWidth:7,padding:6}},tooltip:tt}}});
+  const nl=document.getElementById('ch-npl');
+  if(nl)new Chart(nl,{type:'line',data:{labels:['Jan','Fev','Mar','Abr','Mai','Jun'],datasets:[{label:'NPL %',data:[5.2,5.8,6.1,7,7.5,7.9],borderColor:'#D43352',backgroundColor:'rgba(212,51,82,.09)',borderWidth:2.5,tension:.4,fill:true,pointRadius:3.5,pointBackgroundColor:'#D43352',pointBorderColor:'#07090C',pointBorderWidth:2},{label:'Meta 6%',data:[6,6,6,6,6,6],borderColor:'rgba(201,168,76,.45)',borderWidth:1.5,borderDash:[5,3],pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{boxWidth:8}},tooltip:tt},scales:{x:{grid:gl()},y:{grid:gl(),ticks:{callback:v=>v+'%'},min:4,max:10}}}});
+}
+
+// Passivo Charts
+let passDone=false;
+function initPassivo(){if(passDone)return;passDone=true;
+  const c=document.getElementById('ch-pass');
+  if(c)new Chart(c,{type:'bar',data:{labels:['Set 26','Mar 27','Set 27','Mar 28','Set 28'],datasets:[{label:'Capital',data:[1.5,1.5,1.5,1.5,6.5],backgroundColor:'rgba(212,51,82,.6)',borderRadius:3},{label:'Juros',data:[.79,.69,.58,.47,.36],backgroundColor:'rgba(224,144,32,.55)',borderRadius:3},{label:'Recebimentos Activo',data:[2.34,3.2,3.8,2.1,4.5],backgroundColor:'rgba(38,184,112,.5)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:true,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{boxWidth:8}},tooltip:tt},scales:{x:{grid:gl()},y:{grid:gl(),ticks:{callback:v=>v+'M'}}}}});
+  const pc=document.getElementById('ch-pcomp');
+  if(pc)new Chart(pc,{type:'doughnut',data:{labels:['BFA','Alpinea','Debêntures','Parceiros'],datasets:[{data:[38.7,33.9,19,8.4],backgroundColor:['rgba(201,168,76,.85)','rgba(38,184,112,.8)','rgba(224,144,32,.8)','rgba(91,156,246,.8)'],borderColor:'rgba(7,9,12,.8)',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:true,cutout:'64%',plugins:{legend:{position:'bottom',labels:{boxWidth:7,padding:7}},tooltip:tt}}});
+  const bc=document.getElementById('ch-balance');
+  if(bc)new Chart(bc,{type:'line',data:{labels:['Jun','Jul','Ago','Set','Out','Nov','Dez','Mar27','Jun27','Set27'],datasets:[{label:'Fluxo Líquido',data:[.24,-1.22,1.45,-.33,.45,.7,2.05,.65,.15,.45],borderColor:'#C9A84C',backgroundColor:'rgba(201,168,76,.07)',borderWidth:2,tension:.4,fill:true,pointRadius:3.5,pointBackgroundColor:function(ctx){return ctx.raw<0?'#D43352':'#26B870'},pointBorderColor:'#07090C',pointBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{boxWidth:8}},tooltip:tt},scales:{x:{grid:gl()},y:{grid:gl(),ticks:{callback:v=>(v>=0?'+':'')+v+'M'},title:{display:true,text:'Mil M Kz',color:'#364858'}}}}});
+}
+
+// Titulos Chart
+let titDone=false;
+function initTitulos(){if(titDone)return;titDone=true;
+  const c=document.getElementById('ch-tit');
+  if(c)new Chart(c,{type:'bar',data:{labels:['OT-001','OT-002','BT-003','OT-004'],datasets:[{label:'Valor Facial',data:[500,1200,430,170],backgroundColor:'rgba(201,168,76,.6)',borderRadius:3},{label:'Crédito Abatido',data:[500,1104,430,144.5],backgroundColor:'rgba(38,184,112,.5)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{boxWidth:7}},tooltip:tt},scales:{x:{grid:gl()},y:{grid:gl(),ticks:{callback:v=>v+'M'}}}}});
+}
+
+// Contract type selector
+function selType(el,t){
+  document.querySelectorAll('.ctc').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  const fs=document.getElementById('fases-sec');
+  if(fs)fs.style.display=t==='proj'?'':'none';
+}
+const fsec=document.getElementById('fases-sec');
+if(fsec)fsec.style.display='';
+
+// Multi-check
+document.querySelectorAll('.mci').forEach(item=>{
+  item.addEventListener('click',function(e){const cb=this.querySelector('input');if(e.target!==cb)cb.checked=!cb.checked;this.classList.toggle('on',cb.checked)});
+});
+
+// Tab bars
+document.querySelectorAll('.tabbar').forEach(bar=>{
+  bar.querySelectorAll('.tabbt').forEach(t=>{t.addEventListener('click',function(){bar.querySelectorAll('.tabbt').forEach(x=>x.classList.remove('on'));this.classList.add('on')})});
+});
+
+// Simulator
+function sim(){
+  const cap=parseFloat(document.getElementById('sc').value)||0;
+  const r=parseFloat(document.getElementById('sr').value)||0;
+  const p=parseFloat(document.getElementById('sp').value)||1;
+  const k=parseFloat(document.getElementById('sk').value)||0;
+  const co=parseFloat(document.getElementById('sco').value)||0;
+  const cg=parseFloat(document.getElementById('scg').value)||0;
+  const j=cap*(r/100)*(p/12);
+  const cu=cap*(k/100)*(p/12);
+  const com=cap*(co/100)+cap*(cg/100)*(p/12);
+  const m=j+com-cu;
+  const tir=r+(co/(p/12))+cg;
+  document.getElementById('s-j').textContent=(j+com).toFixed(1)+'M Kz';
+  document.getElementById('s-m').textContent=m.toFixed(1)+'M Kz';
+  document.getElementById('s-t').textContent=tir.toFixed(1)+'%';
+  document.getElementById('s-s').textContent=((r-k)>=0?'+':'')+(r-k).toFixed(1)+'pp';
+}
+
+
+// Entity chart (carteira)
+let entDone=false;
+function initEntity(){if(entDone)return;entDone=true;
+  const c=document.getElementById('ch-entity');
+  if(c)new Chart(c,{type:'bar',data:{labels:['Ministérios','Gov. Provinciais','Gov. Central','Emp. Públicas','Adm. Municipais','Emp. Privadas'],datasets:[{label:'Crédito concedido (Mil M Kz)',data:[12.3,9.8,8.5,3.4,3.2,2.0],backgroundColor:['rgba(38,184,112,.75)','rgba(38,184,112,.7)','rgba(201,168,76,.75)','rgba(224,144,32,.7)','rgba(224,144,32,.65)','rgba(212,51,82,.65)'],borderRadius:5,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:tt},scales:{x:{grid:gl(),ticks:{callback:v=>v+'M'}},y:{grid:{display:false}}}}});
+  const sc=document.getElementById('ch-sector-c');
+  if(sc)new Chart(sc,{type:'pie',data:{labels:['Saúde','Energia','Infraestrutura','Habitação','Educação','Outros'],datasets:[{data:[27,22,20,14,10,7],backgroundColor:['rgba(91,156,246,.85)','rgba(38,184,112,.8)','rgba(201,168,76,.85)','rgba(156,100,200,.8)','rgba(224,144,32,.8)','rgba(70,85,100,.8)'],borderColor:'rgba(7,9,12,.8)',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{boxWidth:7,padding:6}},tooltip:tt}}});
+}
+
+// Risk evolution
+let riskDone=false;
+function initRisk(){if(riskDone)return;riskDone=true;
+  const c=document.getElementById('ch-risk');
+  if(c)new Chart(c,{type:'line',data:{labels:['Jan','Fev','Mar','Abr','Mai','Jun'],datasets:[
+    {label:'Score Médio',data:[6.8,6.5,6.2,5.9,5.6,5.3],borderColor:'#C9A84C',backgroundColor:'rgba(201,168,76,.07)',borderWidth:2,tension:.4,fill:true,pointRadius:3,pointBackgroundColor:'#C9A84C',pointBorderColor:'#07090C',pointBorderWidth:2},
+    {label:'Alerta (5.0)',data:[5,5,5,5,5,5],borderColor:'rgba(212,51,82,.5)',borderWidth:1.5,borderDash:[5,3],pointRadius:0,fill:false}
+  ]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{boxWidth:8}},tooltip:tt},scales:{x:{grid:gl()},y:{grid:gl(),min:3,max:9}}}});
+}
+
+// Garantias
+let guarDone=false;
+function initGuar(){if(guarDone)return;guarDone=true;
+  const c=document.getElementById('ch-guar');
+  if(c)new Chart(c,{type:'doughnut',data:{labels:['Garantias Bancárias','Cessões de Crédito','Hipotecas','Penhores/Avales'],datasets:[{data:[39.8,30.7,19.2,10.4],backgroundColor:['rgba(201,168,76,.85)','rgba(38,184,112,.8)','rgba(91,156,246,.8)','rgba(224,144,32,.8)'],borderColor:'rgba(7,9,12,.8)',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:true,cutout:'64%',plugins:{legend:{position:'bottom',labels:{boxWidth:7,padding:7}},tooltip:{...tt,callbacks:{label:ctx=>' '+ctx.label+': '+ctx.raw+'%'}}}}});
+}
+
+// Recuperação
+let recDone=false;
+function initRec(){if(recDone)return;recDone=true;
+  const c=document.getElementById('ch-rec');
+  if(c)new Chart(c,{type:'bar',data:{labels:['Jan','Fev','Mar','Abr','Mai','Jun'],datasets:[{label:'Recuperado (M Kz)',data:[280,310,420,390,365,430],backgroundColor:'rgba(38,184,112,.68)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:tt},scales:{x:{grid:gl()},y:{grid:gl(),ticks:{callback:v=>v+'M'}}}}});
+}
+
+// Projectos sector
+let projDone=false;
+function initProj(){if(projDone)return;projDone=true;
+  const c=document.getElementById('ch-proj');
+  if(c)new Chart(c,{type:'pie',data:{labels:['Saúde','Energia','Infraestrutura','Habitação','Educação'],datasets:[{data:[32,28,22,12,6],backgroundColor:['rgba(91,156,246,.85)','rgba(38,184,112,.8)','rgba(201,168,76,.85)','rgba(156,100,200,.8)','rgba(224,144,32,.8)'],borderColor:'rgba(7,9,12,.8)',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{boxWidth:7,padding:6}},tooltip:tt}}});
+}
+
+// Nav items
+niEls.forEach(item=>{item.addEventListener('click',function(){niEls.forEach(n=>n.classList.remove('on'));this.classList.add('on')})});
+
+// Clock
+function tick(){const n=new Date();const el=document.getElementById('clk');if(el)el.textContent='16/06/2026 · '+n.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
+setInterval(tick,1000);tick();
+</script>
+</body>
+</html>
