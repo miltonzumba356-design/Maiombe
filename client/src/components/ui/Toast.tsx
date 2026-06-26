@@ -55,7 +55,7 @@ function ToastItem({ toast }: { toast: Toast }) {
 export function ToastContainer() {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  useEffect(() => toastStore.subscribe(setToasts), []);
+  useEffect(() => { return toastStore.subscribe(setToasts); }, []);
 
   if (toasts.length === 0) return null;
 

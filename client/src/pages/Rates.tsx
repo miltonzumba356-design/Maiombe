@@ -298,7 +298,7 @@ export default function Rates() {
           <KpiCard label="Taxa de Juro Base Média" value={avgBase ?? '—'} unit="%" delta={`Mín: ${avgMin ?? '—'}%`} deltaType="up" variant="gold" />
           <KpiCard label="Tipos de Mutuário" value={rateTables.length || '—'} delta="Com tabela de taxas" deltaType="nt" variant="em" />
           <KpiCard label="Custo Médio do Passivo" value={custoPassivoApi != null ? custoPassivoApi : '—'} unit="%" delta="Taxa passiva actual" deltaType="nt" variant="am" />
-          <KpiCard label="Spread Médio" value={avgBase != null && custoPassivoApi != null ? `${(avgBase - custoPassivoApi) >= 0 ? '+' : ''}${Math.round((avgBase - custoPassivoApi) * 10) / 10}` : '—'} unit=" pp" delta="Activo vs Passivo" deltaType={avgBase != null && custoPassivoApi != null && avgBase > custoPassivoApi ? 'up' : 'down'} variant="gold" />
+          <KpiCard label="Spread Médio" value={avgBase != null && custoPassivoApi != null ? `${(avgBase - custoPassivoApi) >= 0 ? '+' : ''}${Math.round((avgBase - custoPassivoApi) * 10) / 10}` : '—'} unit=" pp" delta="Activo vs Passivo" deltaType={avgBase != null && custoPassivoApi != null && avgBase > custoPassivoApi ? 'up' : 'dn'} variant="gold" />
         </div>
 
         {/* ── COMISSÕES — Configuração Principal ─────────────────────── */}

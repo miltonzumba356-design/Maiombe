@@ -33,7 +33,7 @@ const EMAIL_ALERTS = [
 interface Client {
   id: string; name: string; entity_type: string; nif: string;
   contract_count: number; total_exposure: number; risk_level: string;
-  contact_email: string; repayment_methods?: string; execution_pct?: number;
+  contact_email: string; phone?: string; repayment_methods?: string; execution_pct?: number;
   next_due_date?: string; amortized?: number; outstanding?: number;
 }
 
