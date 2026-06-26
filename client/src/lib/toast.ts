@@ -16,9 +16,9 @@ function _notify() {
 }
 
 export const toastStore = {
-  subscribe(l: Listener) {
+  subscribe(l: Listener): () => void {
     _listeners.add(l);
-    return () => _listeners.delete(l);
+    return () => { _listeners.delete(l); };
   },
 
   push(message: string, type: ToastType = 'info', duration = 5000) {
