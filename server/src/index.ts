@@ -22,7 +22,17 @@ app.use(helmet({
 app.set('trust proxy', 1);
 
 app.use(cors({
-  origin: config.cors.origin,
+  origin: (origin, callback) => {
+    // Permite sem origin (curl, Postman, server-to-server)
+    if (!origin) return callback(null, true);
+    // Permite origens configuradas
+    const allowed = config.cors.origin as string[];
+    if (allowed.includes(origin)) return callback(null, true);
+    // Permite qualquer preview do Vercel (*.vercel.app)
+    if (/^https:\/\/[a-z0-9-]+-[a-z0-9]+-[a-z0-9]+\.vercel\.app$/.test(origin) ||
+        origin.endsWith('.vercel.app')) return callback(null, true);
+    callback(new Error(`CORS: origem não permitida — ${origin}`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
