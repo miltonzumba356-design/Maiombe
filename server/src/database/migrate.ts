@@ -674,6 +674,41 @@ function seedAutomationDefaults() {
   rules.forEach(r => rule.run(uuidv4(), r.label, r.trigger_type, r.days_offset, templates[r.tmplIdx].id, r.channel, now));
 }
 
+export async function seedDefaultUsers(): Promise<void> {
+  const db = getDatabase();
+  const count = (db.prepare('SELECT COUNT(*) as n FROM users').get() as { n: number }).n;
+  if (count > 0) return;
+
+  logger.info('No users found — seeding default users');
+
+  const argon2 = await import('argon2');
+  const hash = await argon2.hash('12345');
+
+  const USERS = [
+    { role: 'administrador',       name: 'Administrador'       },
+    { role: 'director_executivo',  name: 'Director Executivo'  },
+    { role: 'director_financeiro', name: 'Director Financeiro' },
+    { role: 'gestor_carteira',     name: 'Gestor de Carteira'  },
+    { role: 'analista_risco',      name: 'Analista de Risco'   },
+    { role: 'juridico',            name: 'Jurídico'            },
+    { role: 'contabilidade',       name: 'Contabilidade'       },
+    { role: 'auditor',             name: 'Auditor'             },
+  ];
+
+  const insert = db.prepare(
+    `INSERT INTO users (id, name, email, password_hash, role) VALUES (?, ?, ?, ?, ?)`
+  );
+
+  db.transaction(() => {
+    for (const u of USERS) {
+      insert.run(uuidv4(), u.name, `${u.role}@sistema.com`, hash, u.role);
+      logger.info(`  Seeded: ${u.role}@sistema.com`);
+    }
+  })();
+
+  logger.info('Default users seeded — password: 12345');
+}
+
 if (require.main === module) {
   runMigrations();
   process.exit(0);

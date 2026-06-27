@@ -6,7 +6,7 @@ import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import { config } from './config';
 import { logger } from './utils/logger';
-import { runMigrations } from './database/migrate';
+import { runMigrations, seedDefaultUsers } from './database/migrate';
 import routes from './routes';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
 import { startDailyNotificationJob } from './jobs/daily-notifications';
@@ -62,12 +62,15 @@ app.use('/api/v1', routes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-// Init
-runMigrations();
-startDailyNotificationJob();
+// Init — seed users before accepting requests
+(async () => {
+  runMigrations();
+  await seedDefaultUsers();
+  startDailyNotificationJob();
 
-app.listen(config.port, () => {
-  logger.info(`MAIOMBE server running on port ${config.port} [${config.env}]`);
-});
+  app.listen(config.port, () => {
+    logger.info(`MAIOMBE server running on port ${config.port} [${config.env}]`);
+  });
+})();
 
 export default app;
