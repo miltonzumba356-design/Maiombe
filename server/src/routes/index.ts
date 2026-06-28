@@ -393,6 +393,123 @@ router.delete('/commissions/:id', authorize('taxas', 'write'), auditLog('DELETE'
   } catch (e) { next(e); }
 });
 
+// ── MARGEM DE INTERMEDIAÇÃO FINANCEIRA ────────────────────────────────────────
+router.get('/margin', authorize('taxas', 'read'), (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const db = getDatabase();
+
+    const fontes = db.prepare(`
+      SELECT id, name, source_type, institution, total_amount, utilized_amount, interest_rate, maturity_date, status
+      FROM funding_sources WHERE status = 'activa' ORDER BY total_amount DESC
+    `).all() as Array<{ id: string; name: string; source_type: string; institution: string; total_amount: number; utilized_amount: number; interest_rate: number; maturity_date: string; status: string }>;
+
+    const contratos = db.prepare(`
+      SELECT c.id, c.reference, c.amount, c.interest_rate, c.term_months, c.celebration_date,
+             cl.name as client_name, cl.entity_type
+      FROM contracts c
+      JOIN clients cl ON cl.id = c.client_id
+      WHERE c.status = 'recebidos' AND c.deleted_at IS NULL
+      ORDER BY c.amount DESC
+    `).all() as Array<{ id: string; reference: string; amount: number; interest_rate: number; term_months: number; celebration_date: string; client_name: string; entity_type: string }>;
+
+    const custosOp = db.prepare(`
+      SELECT * FROM operational_costs ORDER BY category, name
+    `).all() as Array<{ id: string; name: string; category: string; amount_monthly: number; is_active: number; notes: string }>;
+
+    // Receita activa anual projectada (capital × taxa × 1 ano)
+    const receitaActiva = contratos.reduce((s, c) => s + (c.amount * c.interest_rate / 100), 0);
+
+    // Custo passivo anual projectado (montante total × taxa × 1 ano)
+    const custoPassivo = fontes.reduce((s, f) => s + (f.total_amount * f.interest_rate / 100), 0);
+
+    // Custos operacionais anuais
+    const custosOperacionais = custosOp
+      .filter(c => c.is_active)
+      .reduce((s, c) => s + (c.amount_monthly * 12), 0);
+
+    const margemBruta = receitaActiva - custoPassivo;
+    const resultadoLiquido = margemBruta - custosOperacionais;
+
+    const totalFontes = fontes.reduce((s, f) => s + f.total_amount, 0);
+    const totalContratos = contratos.reduce((s, c) => s + c.amount, 0);
+    const taxaActivaMedia = contratos.length
+      ? contratos.reduce((s, c) => s + c.interest_rate, 0) / contratos.length
+      : 0;
+    const taxaPassivaMedia = fontes.length
+      ? fontes.reduce((s, f) => s + f.interest_rate, 0) / fontes.length
+      : 0;
+
+    sendSuccess(res, {
+      fontes: fontes.map(f => ({
+        ...f,
+        custo_anual: f.total_amount * f.interest_rate / 100,
+        pct_do_total: totalFontes > 0 ? Math.round(f.total_amount / totalFontes * 1000) / 10 : 0,
+      })),
+      contratos: contratos.map(c => ({
+        ...c,
+        receita_anual: c.amount * c.interest_rate / 100,
+        pct_do_total: totalContratos > 0 ? Math.round(c.amount / totalContratos * 1000) / 10 : 0,
+      })),
+      custosOp,
+      totais: {
+        receitaActiva,
+        custoPassivo,
+        margemBruta,
+        custosOperacionais,
+        resultadoLiquido,
+        taxaActivaMedia: Math.round(taxaActivaMedia * 10) / 10,
+        taxaPassivaMedia: Math.round(taxaPassivaMedia * 10) / 10,
+        spread: Math.round((taxaActivaMedia - taxaPassivaMedia) * 10) / 10,
+        totalFontes,
+        totalContratos,
+      },
+    });
+  } catch (e) { next(e); }
+});
+
+// ── CUSTOS OPERACIONAIS ───────────────────────────────────────────────────────
+router.get('/operational-costs', authorize('taxas', 'read'), (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const db = getDatabase();
+    sendSuccess(res, db.prepare('SELECT * FROM operational_costs ORDER BY category, name').all());
+  } catch (e) { next(e); }
+});
+
+router.post('/operational-costs', authorize('taxas', 'write'), (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { v4: uuidv4 } = require('uuid');
+    const db = getDatabase();
+    const { name, category, amount_monthly, notes } = req.body;
+    if (!name || !category) throw new Error('Nome e categoria são obrigatórios');
+    const VALID = ['pessoal','sistema','juridico','administrativo','outros'];
+    if (!VALID.includes(category)) throw new Error('Categoria inválida');
+    const id = uuidv4();
+    const now = new Date().toISOString();
+    db.prepare(`INSERT INTO operational_costs (id,name,category,amount_monthly,notes,created_at,updated_at) VALUES (?,?,?,?,?,?,?)`)
+      .run(id, name, category, amount_monthly || 0, notes || null, now, now);
+    sendSuccess(res, db.prepare('SELECT * FROM operational_costs WHERE id=?').get(id), 201, 'Custo operacional registado');
+  } catch (e) { next(e); }
+});
+
+router.put('/operational-costs/:id', authorize('taxas', 'write'), (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const db = getDatabase();
+    const { name, category, amount_monthly, is_active, notes } = req.body;
+    const now = new Date().toISOString();
+    db.prepare(`UPDATE operational_costs SET name=?,category=?,amount_monthly=?,is_active=?,notes=?,updated_at=? WHERE id=?`)
+      .run(name, category, amount_monthly ?? 0, is_active !== undefined ? (is_active ? 1 : 0) : 1, notes ?? null, now, routeParam(req.params.id));
+    sendSuccess(res, db.prepare('SELECT * FROM operational_costs WHERE id=?').get(routeParam(req.params.id)));
+  } catch (e) { next(e); }
+});
+
+router.delete('/operational-costs/:id', authorize('taxas', 'write'), (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const db = getDatabase();
+    db.prepare('DELETE FROM operational_costs WHERE id=?').run(routeParam(req.params.id));
+    sendSuccess(res, null, 200, 'Custo eliminado');
+  } catch (e) { next(e); }
+});
+
 // BI ANALYTICS
 router.get('/bi', authorize('bi', 'read'), (req: Request, res: Response, next: NextFunction) => {
   try {

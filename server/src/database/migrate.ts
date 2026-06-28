@@ -597,6 +597,18 @@ export function runMigrations(): void {
     CREATE INDEX IF NOT EXISTS idx_sig_token ON digital_signatures(token);
     CREATE INDEX IF NOT EXISTS idx_sig_contract ON digital_signatures(contract_id);
     CREATE INDEX IF NOT EXISTS idx_sig_status ON digital_signatures(status);
+
+    -- CUSTOS OPERACIONAIS (para análise de margem de intermediação)
+    CREATE TABLE IF NOT EXISTS operational_costs (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      category TEXT NOT NULL CHECK(category IN ('pessoal','sistema','juridico','administrativo','outros')),
+      amount_monthly REAL NOT NULL DEFAULT 0,
+      is_active INTEGER NOT NULL DEFAULT 1,
+      notes TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `);
 
   migrateContractsStatusConstraint();

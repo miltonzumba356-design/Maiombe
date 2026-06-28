@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Save, Loader2, RefreshCw, Plus, Trash2, Edit2, X, ShieldCheck, Settings, AlertTriangle, Check } from 'lucide-react';
+import { Save, Loader2, RefreshCw, Plus, Trash2, Edit2, X, ShieldCheck, Settings, AlertTriangle, TrendingUp, TrendingDown, DollarSign, Activity } from 'lucide-react';
 import api from '@/lib/api';
 import TopBar from '@/components/layout/TopBar';
 import KpiCard from '@/components/ui/KpiCard';
 import Panel from '@/components/ui/Panel';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import { formatPercent } from '@/lib/utils';
+import { formatPercent, formatKz } from '@/lib/utils';
 import { downloadExcel, csvDate } from '@/lib/export';
 
 interface RateRow {
@@ -160,6 +160,48 @@ export default function Rates() {
     setEditingId(r.id);
     setEditForm({ min_rate: r.min_rate, base_rate: r.base_rate, max_rate: r.max_rate, management_commission: r.management_commission, opening_commission: r.opening_commission });
   }
+
+  // ── Margem de Intermediação ───────────────────────────────────────────────
+  const [showCostForm, setShowCostForm] = useState(false);
+  const [costForm, setCostForm] = useState({ name: '', category: 'pessoal', amount_monthly: '', notes: '' });
+  const [costErr, setCostErr] = useState('');
+  const [editingCostId, setEditingCostId] = useState<string | null>(null);
+  const [editCostForm, setEditCostForm] = useState<{ name: string; category: string; amount_monthly: number; notes: string }>({ name: '', category: 'pessoal', amount_monthly: 0, notes: '' });
+
+  const { data: marginData, isLoading: marginLoading } = useQuery({
+    queryKey: ['margin'],
+    queryFn: () => api.get('/margin').then(r => r.data.data),
+    staleTime: 30_000,
+  });
+
+  const marginTotais = marginData?.totais;
+  const marginFontes: Array<{ id: string; name: string; institution: string; interest_rate: number; total_amount: number; custo_anual: number; pct_do_total: number }> = marginData?.fontes || [];
+  const marginContratos: Array<{ id: string; reference: string; client_name: string; interest_rate: number; amount: number; receita_anual: number; pct_do_total: number }> = marginData?.contratos || [];
+  const marginCustos: Array<{ id: string; name: string; category: string; amount_monthly: number; is_active: number; notes: string }> = marginData?.custosOp || [];
+
+  const createCost = useMutation({
+    mutationFn: (d: typeof costForm) => api.post('/operational-costs', { ...d, amount_monthly: +d.amount_monthly }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['margin'] }); setShowCostForm(false); setCostErr(''); setCostForm({ name: '', category: 'pessoal', amount_monthly: '', notes: '' }); },
+    onError: (e: any) => setCostErr(e.response?.data?.message || 'Erro ao registar'),
+  });
+
+  const updateCost = useMutation({
+    mutationFn: (d: { id: string } & typeof editCostForm) => api.put(`/operational-costs/${d.id}`, d),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['margin'] }); setEditingCostId(null); },
+  });
+
+  const deleteCost = useMutation({
+    mutationFn: (id: string) => api.delete(`/operational-costs/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['margin'] }),
+  });
+
+  const COST_CATS: Record<string, { label: string; color: string }> = {
+    pessoal:       { label: 'Pessoal',       color: '#C9A84C' },
+    sistema:       { label: 'Sistema/TI',    color: '#26B870' },
+    juridico:      { label: 'Jurídico',      color: '#D43352' },
+    administrativo:{ label: 'Administrativo',color: '#7888A0' },
+    outros:        { label: 'Outros',         color: '#E09020' },
+  };
 
   // ── Simulator ─────────────────────────────────────────────────────────────
   const [selectedProfile, setSelectedProfile] = useState('');
@@ -789,6 +831,288 @@ export default function Rates() {
             </div>
           </Panel>
         </div>
+
+        {/* ── ANÁLISE DE INTERMEDIAÇÃO FINANCEIRA ────────────────────── */}
+        <div style={{ marginTop: 12 }}>
+          <Panel
+            title="Análise de Intermediação Financeira"
+            tag="Real · Fontes de Financiamento vs Contratos Activos vs Custos Operacionais"
+          >
+            {marginLoading ? <LoadingSpinner /> : (
+              <div style={{ padding: 0 }}>
+
+                {/* KPI summary strip */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 0, borderBottom: '1px solid rgba(38,184,112,.12)' }}>
+                  {[
+                    { icon: TrendingUp,   label: 'Receita Activa (anual)', value: formatKz(marginTotais?.receitaActiva ?? 0), color: '#26B870', sub: `Taxa média: ${marginTotais?.taxaActivaMedia ?? 0}%` },
+                    { icon: TrendingDown, label: 'Custo Passivo (anual)',  value: formatKz(marginTotais?.custoPassivo ?? 0),   color: '#D43352', sub: `Taxa passiva: ${marginTotais?.taxaPassivaMedia ?? 0}%` },
+                    { icon: Activity,     label: 'Margem Bruta',           value: formatKz(marginTotais?.margemBruta ?? 0),    color: (marginTotais?.margemBruta ?? 0) >= 0 ? '#C9A84C' : '#D43352', sub: `Spread: ${marginTotais?.spread ?? 0} pp` },
+                    { icon: DollarSign,   label: 'Custos Operacionais',    value: formatKz(marginTotais?.custosOperacionais ?? 0), color: '#E09020', sub: `${marginCustos.filter(c => c.is_active).length} centros activos` },
+                    { icon: DollarSign,   label: 'Resultado Líquido',      value: formatKz(marginTotais?.resultadoLiquido ?? 0),   color: (marginTotais?.resultadoLiquido ?? 0) >= 0 ? '#26B870' : '#D43352', sub: 'Após todos os custos' },
+                  ].map((k, i) => {
+                    const Icon = k.icon;
+                    return (
+                      <div key={i} style={{
+                        padding: '14px 18px', display: 'flex', alignItems: 'flex-start', gap: 10,
+                        borderRight: i < 4 ? '1px solid rgba(38,184,112,.08)' : undefined,
+                        background: i === 4 ? (marginTotais?.resultadoLiquido ?? 0) >= 0 ? 'rgba(38,184,112,.04)' : 'rgba(212,51,82,.04)' : undefined,
+                      }}>
+                        <div style={{ width: 30, height: 30, borderRadius: 7, background: `${k.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <Icon size={14} color={k.color} />
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 8, color: '#7888A0', marginBottom: 2 }}>{k.label}</div>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: k.color, fontFamily: 'monospace' }}>{k.value}</div>
+                          <div style={{ fontSize: 8, color: '#364858', marginTop: 1 }}>{k.sub}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Main grid: waterfall + tables */}
+                <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr 1fr', gap: 0 }}>
+
+                  {/* ── WATERFALL ──────────────────────────────────────── */}
+                  <div style={{ borderRight: '1px solid rgba(38,184,112,.1)', padding: '14px 16px' }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: '#7888A0', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>
+                      Cascata de Resultados
+                    </div>
+
+                    {(() => {
+                      const ra = marginTotais?.receitaActiva ?? 0;
+                      const cp = marginTotais?.custoPassivo ?? 0;
+                      const mb = marginTotais?.margemBruta ?? 0;
+                      const co = marginTotais?.custosOperacionais ?? 0;
+                      const rl = marginTotais?.resultadoLiquido ?? 0;
+                      const max = Math.max(ra, cp + co, 1);
+
+                      const rows = [
+                        { label: 'Receita Activa', val: ra,  sign: '+', color: '#26B870',  isTotal: false },
+                        { label: 'Custo do Passivo', val: cp, sign: '−', color: '#D43352', isTotal: false },
+                        { label: 'Margem Bruta', val: mb, sign: '=', color: '#C9A84C', isTotal: true },
+                        { label: 'Custos Operacionais', val: co, sign: '−', color: '#E09020', isTotal: false },
+                        { label: 'Resultado Líquido', val: rl, sign: '=', color: rl >= 0 ? '#26B870' : '#D43352', isTotal: true },
+                      ];
+
+                      return rows.map((r, i) => (
+                        <div key={i} style={{
+                          marginBottom: 6,
+                          padding: r.isTotal ? '8px 10px' : '6px 10px',
+                          background: r.isTotal ? `${r.color}12` : 'rgba(7,9,12,.4)',
+                          border: `1px solid ${r.color}${r.isTotal ? '30' : '18'}`,
+                          borderRadius: 6,
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                            <span style={{ fontSize: r.isTotal ? 9 : 8.5, fontWeight: r.isTotal ? 700 : 500, color: r.color }}>
+                              {r.sign} {r.label}
+                            </span>
+                            <span style={{ fontFamily: 'monospace', fontSize: r.isTotal ? 11 : 10, fontWeight: r.isTotal ? 800 : 600, color: r.color }}>
+                              {formatKz(Math.abs(r.val))}
+                            </span>
+                          </div>
+                          {!r.isTotal && (
+                            <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,.06)', overflow: 'hidden' }}>
+                              <div style={{ height: '100%', width: `${Math.min(Math.abs(r.val) / max * 100, 100)}%`, background: r.color, borderRadius: 2, transition: 'width 0.6s ease' }} />
+                            </div>
+                          )}
+                        </div>
+                      ));
+                    })()}
+
+                    {/* Spread badge */}
+                    <div style={{ marginTop: 10, padding: '8px 10px', background: 'rgba(201,168,76,.07)', border: '1px solid rgba(201,168,76,.2)', borderRadius: 6, textAlign: 'center' }}>
+                      <div style={{ fontSize: 8, color: '#7888A0', marginBottom: 3 }}>Spread de Intermediação</div>
+                      <div style={{ fontFamily: 'monospace', fontSize: 18, fontWeight: 900, color: (marginTotais?.spread ?? 0) > 0 ? '#C9A84C' : '#D43352' }}>
+                        {(marginTotais?.spread ?? 0) > 0 ? '+' : ''}{marginTotais?.spread ?? 0} pp
+                      </div>
+                      <div style={{ fontSize: 8, color: '#364858', marginTop: 2 }}>
+                        Taxa Activa {marginTotais?.taxaActivaMedia ?? 0}% − Passiva {marginTotais?.taxaPassivaMedia ?? 0}%
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── FONTES vs CONTRATOS ─────────────────────────────── */}
+                  <div style={{ borderRight: '1px solid rgba(38,184,112,.1)' }}>
+                    {/* Fontes */}
+                    <div style={{ padding: '14px 16px 8px', borderBottom: '1px solid rgba(38,184,112,.07)' }}>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: '#D43352', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>
+                        Fontes de Financiamento ({marginFontes.length})
+                      </div>
+                      {marginFontes.length === 0 && (
+                        <div style={{ fontSize: 9.5, color: '#364858', padding: '8px 0' }}>Nenhuma fonte activa registada</div>
+                      )}
+                      {marginFontes.map(f => (
+                        <div key={f.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,.04)' }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 9.5, fontWeight: 600, color: '#E5EBF2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {f.institution || f.name}
+                            </div>
+                            <div style={{ fontSize: 8, color: '#7888A0' }}>
+                              {formatKz(f.total_amount)} · <span style={{ color: '#D43352' }}>{formatPercent(f.interest_rate)} a.a.</span>
+                            </div>
+                          </div>
+                          <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: 8 }}>
+                            <div style={{ fontFamily: 'monospace', fontSize: 10, color: '#D43352', fontWeight: 700 }}>− {formatKz(f.custo_anual)}</div>
+                            <div style={{ fontSize: 8, color: '#364858' }}>{f.pct_do_total}% das fontes</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Contratos */}
+                    <div style={{ padding: '10px 16px 8px' }}>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: '#26B870', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>
+                        Contratos Activos ({marginContratos.length})
+                      </div>
+                      {marginContratos.length === 0 && (
+                        <div style={{ fontSize: 9.5, color: '#364858', padding: '8px 0' }}>Nenhum contrato em vigor</div>
+                      )}
+                      {marginContratos.map(c => (
+                        <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,.04)' }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 9.5, fontWeight: 600, color: '#E5EBF2' }}>{c.reference}</div>
+                            <div style={{ fontSize: 8, color: '#7888A0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {c.client_name} · {formatKz(c.amount)} · <span style={{ color: '#26B870' }}>{formatPercent(c.interest_rate)} a.a.</span>
+                            </div>
+                          </div>
+                          <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: 8 }}>
+                            <div style={{ fontFamily: 'monospace', fontSize: 10, color: '#26B870', fontWeight: 700 }}>+ {formatKz(c.receita_anual)}</div>
+                            <div style={{ fontSize: 8, color: '#364858' }}>{c.pct_do_total}% da carteira</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* ── CUSTOS OPERACIONAIS ─────────────────────────────── */}
+                  <div style={{ padding: '14px 16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: '#E09020', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+                        Custos Operacionais
+                      </div>
+                      <button
+                        onClick={() => { setShowCostForm(v => !v); setCostErr(''); }}
+                        style={{ display: 'flex', alignItems: 'center', gap: 4, background: showCostForm ? 'rgba(224,144,32,.18)' : 'rgba(224,144,32,.08)', border: '1px solid rgba(224,144,32,.25)', borderRadius: 5, cursor: 'pointer', color: '#E09020', padding: '3px 10px', fontSize: 8.5, fontWeight: 700 }}
+                      >
+                        {showCostForm ? <X size={10} /> : <Plus size={10} />}
+                        {showCostForm ? 'Cancelar' : 'Adicionar'}
+                      </button>
+                    </div>
+
+                    {showCostForm && (
+                      <div style={{ padding: '10px 12px', background: 'rgba(224,144,32,.05)', border: '1px solid rgba(224,144,32,.18)', borderRadius: 6, marginBottom: 10 }}>
+                        {costErr && <div style={{ fontSize: 9, color: '#D43352', marginBottom: 6 }}>{costErr}</div>}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 6 }}>
+                          <div>
+                            <label style={{ display: 'block', fontSize: 8, color: '#7888A0', marginBottom: 2 }}>Designação *</label>
+                            <input value={costForm.name} onChange={e => setCostForm(p => ({ ...p, name: e.target.value }))} placeholder="Ex: Salários" style={{ width: '100%', ...inpStyle }} />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: 8, color: '#7888A0', marginBottom: 2 }}>Categoria *</label>
+                            <select value={costForm.category} onChange={e => setCostForm(p => ({ ...p, category: e.target.value }))} style={{ width: '100%', ...inpStyle }}>
+                              {Object.entries(COST_CATS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                            </select>
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: 8, color: '#7888A0', marginBottom: 2 }}>Valor Mensal (Kz)</label>
+                            <input type="number" value={costForm.amount_monthly} onChange={e => setCostForm(p => ({ ...p, amount_monthly: e.target.value }))} placeholder="0" style={{ width: '100%', ...inpStyle }} />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: 8, color: '#7888A0', marginBottom: 2 }}>Notas</label>
+                            <input value={costForm.notes} onChange={e => setCostForm(p => ({ ...p, notes: e.target.value }))} placeholder="Opcional" style={{ width: '100%', ...inpStyle }} />
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => createCost.mutate(costForm)}
+                          disabled={createCost.isPending || !costForm.name}
+                          style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(224,144,32,.15)', border: '1px solid rgba(224,144,32,.3)', borderRadius: 5, cursor: 'pointer', color: '#E09020', padding: '5px 12px', fontSize: 9, fontWeight: 700 }}
+                        >
+                          {createCost.isPending ? <Loader2 size={10} className="spin" /> : <Save size={10} />} Guardar
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Cost list */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      {marginCustos.length === 0 && !showCostForm && (
+                        <div style={{ fontSize: 9.5, color: '#364858', padding: '8px 0' }}>
+                          Nenhum custo operacional registado.<br />
+                          <span style={{ color: '#7888A0' }}>Adicione salários, custos de sistema, etc.</span>
+                        </div>
+                      )}
+                      {marginCustos.map(c => {
+                        const isEdit = editingCostId === c.id;
+                        const cat = COST_CATS[c.category] || { label: c.category, color: '#7888A0' };
+                        return (
+                          <div key={c.id} style={{
+                            padding: '7px 10px',
+                            background: c.is_active ? 'rgba(7,9,12,.5)' : 'rgba(7,9,12,.2)',
+                            border: `1px solid ${c.is_active ? 'rgba(224,144,32,.15)' : 'rgba(120,136,160,.1)'}`,
+                            borderRadius: 5,
+                            opacity: c.is_active ? 1 : 0.6,
+                          }}>
+                            {isEdit ? (
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5, marginBottom: 6 }}>
+                                <input value={editCostForm.name} onChange={e => setEditCostForm(p => ({ ...p, name: e.target.value }))} style={{ ...inpStyle, gridColumn: '1/-1' }} />
+                                <select value={editCostForm.category} onChange={e => setEditCostForm(p => ({ ...p, category: e.target.value }))} style={inpStyle}>
+                                  {Object.entries(COST_CATS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                                </select>
+                                <input type="number" value={editCostForm.amount_monthly} onChange={e => setEditCostForm(p => ({ ...p, amount_monthly: +e.target.value }))} style={inpStyle} />
+                                <div style={{ display: 'flex', gap: 4, gridColumn: '1/-1' }}>
+                                  <button onClick={() => updateCost.mutate({ id: c.id, ...editCostForm })} disabled={updateCost.isPending}
+                                    style={{ display: 'flex', alignItems: 'center', gap: 3, background: 'rgba(38,184,112,.15)', border: '1px solid rgba(38,184,112,.25)', borderRadius: 4, cursor: 'pointer', color: '#26B870', padding: '3px 8px', fontSize: 8.5, fontWeight: 700 }}>
+                                    {updateCost.isPending ? <Loader2 size={9} className="spin" /> : <Save size={9} />} Salvar
+                                  </button>
+                                  <button onClick={() => setEditingCostId(null)} style={{ background: 'none', border: '1px solid rgba(120,136,160,.15)', borderRadius: 4, cursor: 'pointer', color: '#7888A0', padding: '3px 6px', fontSize: 8.5 }}><X size={9} /></button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 1 }}>
+                                    <span style={{ fontSize: 9.5, fontWeight: 600, color: c.is_active ? '#E5EBF2' : '#7888A0' }}>{c.name}</span>
+                                    <span style={{ padding: '1px 5px', borderRadius: 3, fontSize: 7.5, fontWeight: 600, background: `${cat.color}18`, color: cat.color, border: `1px solid ${cat.color}30` }}>{cat.label}</span>
+                                  </div>
+                                  <div style={{ fontSize: 8, color: '#364858' }}>
+                                    {formatKz(c.amount_monthly)}/mês · {formatKz(c.amount_monthly * 12)}/ano
+                                  </div>
+                                </div>
+                                <div style={{ display: 'flex', gap: 3 }}>
+                                  <button onClick={() => { setEditingCostId(c.id); setEditCostForm({ name: c.name, category: c.category, amount_monthly: c.amount_monthly, notes: c.notes || '' }); }}
+                                    style={{ background: 'rgba(201,168,76,.08)', border: '1px solid rgba(201,168,76,.15)', borderRadius: 4, cursor: 'pointer', color: '#C9A84C', padding: '3px 6px', fontSize: 8.5 }}><Edit2 size={9} /></button>
+                                  <button onClick={() => { if (window.confirm(`Eliminar "${c.name}"?`)) deleteCost.mutate(c.id); }}
+                                    style={{ background: 'rgba(212,51,82,.07)', border: '1px solid rgba(212,51,82,.15)', borderRadius: 4, cursor: 'pointer', color: '#D43352', padding: '3px 6px', fontSize: 8.5 }}><Trash2 size={9} /></button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Subtotal operacional */}
+                    {marginCustos.length > 0 && (
+                      <div style={{ marginTop: 10, padding: '8px 10px', background: 'rgba(224,144,32,.07)', border: '1px solid rgba(224,144,32,.2)', borderRadius: 6 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: 9, fontWeight: 700, color: '#E09020' }}>Total Anual Operacional</span>
+                          <span style={{ fontFamily: 'monospace', fontSize: 11, fontWeight: 800, color: '#E09020' }}>
+                            − {formatKz(marginTotais?.custosOperacionais ?? 0)}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: 8, color: '#364858', marginTop: 2 }}>
+                          {formatKz((marginTotais?.custosOperacionais ?? 0) / 12)}/mês
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+              </div>
+            )}
+          </Panel>
+        </div>
+
       </div>
     </>
   );
