@@ -348,11 +348,18 @@ export default function Rates() {
       <div style={{ padding: '22px 26px' }}>
 
         {/* ── KPI cards ──────────────────────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 18 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 12, marginBottom: 18 }}>
           <KpiCard label="Taxa de Juro Base Média" value={avgBase ?? '—'} unit="%" delta={`Mín: ${avgMin ?? '—'}%`} deltaType="up" variant="gold" />
           <KpiCard label="Tipos de Mutuário" value={rateTables.length || '—'} delta="Com tabela de taxas" deltaType="nt" variant="em" />
           <KpiCard label="Custo Médio do Passivo" value={custoPassivoApi != null ? custoPassivoApi : '—'} unit="%" delta="Taxa passiva actual" deltaType="nt" variant="am" />
           <KpiCard label="Spread Médio" value={avgBase != null && custoPassivoApi != null ? `${(avgBase - custoPassivoApi) >= 0 ? '+' : ''}${Math.round((avgBase - custoPassivoApi) * 10) / 10}` : '—'} unit=" pp" delta="Activo vs Passivo" deltaType={avgBase != null && custoPassivoApi != null && avgBase > custoPassivoApi ? 'up' : 'dn'} variant="gold" />
+          <KpiCard
+            label="Resultado Líquido"
+            value={marginTotais ? formatKz(marginTotais.resultadoLiquido) : '—'}
+            delta="Após todos os custos"
+            deltaType={marginTotais ? (marginTotais.resultadoLiquido >= 0 ? 'up' : 'dn') : 'nt'}
+            variant={marginTotais ? (marginTotais.resultadoLiquido >= 0 ? 'em' : 'cr') : 'em'}
+          />
         </div>
 
         {/* ── COMISSÕES — Configuração Principal ─────────────────────── */}
