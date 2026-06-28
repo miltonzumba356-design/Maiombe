@@ -213,10 +213,20 @@ export default function Rates() {
   const [comGestao, setComGestao] = useState(0.75);
   const [capitalNaoDesembolsado, setCapitalNaoDesembolsado] = useState(0);
   const [diasAtraso, setDiasAtraso] = useState(0);
+  const [custosOpMensaisM, setCustosOpMensaisM] = useState(0);
 
   useEffect(() => {
     if (custoPassivoApi != null && custoPassivo === 0) setCustoPassivo(custoPassivoApi);
   }, [custoPassivoApi]);
+
+  useEffect(() => {
+    if (marginCustos.length > 0 && custosOpMensaisM === 0) {
+      const totalMensal = marginCustos
+        .filter(c => c.is_active)
+        .reduce((s, c) => s + c.amount_monthly, 0);
+      setCustosOpMensaisM(Math.round(totalMensal / 1e6 * 100) / 100);
+    }
+  }, [marginCustos]);
 
   // ── Lookup das regras da política que se aplicam ao simulador ─────────────
   const polAbertura  = commissions.find(c => c.name.toLowerCase().includes('abertura'));
@@ -254,10 +264,12 @@ export default function Rates() {
   const moraRate = polMora ? polMora.rate_min : 0.05;
   const jurosMoraVal = diasAtraso > 0 ? capital * (moraRate / 100) * diasAtraso : 0;
 
-  const totalReceitas  = juros + commAberturaVal + commGestaoVal + commImobVal + jurosMoraVal;
-  const margemLiquida  = totalReceitas - custo;
-  const tir            = prazo > 0 ? (totalReceitas / capital / (prazo / 12)) * 100 : 0;
-  const spread         = taxa - custoPassivo;
+  const totalReceitas    = juros + commAberturaVal + commGestaoVal + commImobVal + jurosMoraVal;
+  const margemLiquida    = totalReceitas - custo;
+  const custosOpPeriodo  = custosOpMensaisM * prazo;
+  const resultadoFinal   = margemLiquida - custosOpPeriodo;
+  const tir              = prazo > 0 ? (totalReceitas / capital / (prazo / 12)) * 100 : 0;
+  const spread           = taxa - custoPassivo;
 
   // Validação dos intervalos da política
   const aperturaOk = !polAbertura || (comAbertura >= polAbertura.rate_min && comAbertura <= polAbertura.rate_max);
@@ -756,11 +768,18 @@ export default function Rates() {
                   <input type="number" step="1" value={diasAtraso} onChange={e => setDiasAtraso(parseFloat(e.target.value) || 0)} style={inputStyle} />
                 </div>
                 {/* Custo passivo */}
-                <div style={{ gridColumn: '1 / -1' }}>
+                <div>
                   <label style={{ display: 'block', fontSize: 8, color: '#7888A0', marginBottom: 3 }}>
-                    Custo do Passivo (%){custoPassivoApi != null ? ' ← carregado da API' : ''}
+                    Custo do Passivo (%){custoPassivoApi != null ? ' ← API' : ''}
                   </label>
                   <input type="number" step="0.1" value={custoPassivo} onChange={e => setCustoPassivo(parseFloat(e.target.value) || 0)} style={inputStyle} />
+                </div>
+                {/* Custos operacionais mensais */}
+                <div>
+                  <label style={{ display: 'block', fontSize: 8, color: '#E09020', marginBottom: 3 }}>
+                    Custos Operacionais Mensais (M Kz){marginCustos.length > 0 ? ' ← API' : ''}
+                  </label>
+                  <input type="number" step="0.01" value={custosOpMensaisM} onChange={e => setCustosOpMensaisM(parseFloat(e.target.value) || 0)} style={{ ...inputStyle, borderColor: 'rgba(224,144,32,.3)' }} />
                 </div>
               </div>
 
@@ -800,20 +819,41 @@ export default function Rates() {
                   <div style={{ fontFamily: 'monospace', fontSize: 11, color: '#D43352', fontWeight: 700 }}>− {custo.toFixed(1)}M Kz</div>
                 </div>
 
-                {/* Margem líquida */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: margemLiquida >= 0 ? 'rgba(38,184,112,.1)' : 'rgba(212,51,82,.1)' }}>
-                  <div style={{ fontSize: 11, color: margemLiquida >= 0 ? '#26B870' : '#D43352', fontWeight: 800 }}>MARGEM LÍQUIDA</div>
-                  <div style={{ fontFamily: 'monospace', fontSize: 14, color: margemLiquida >= 0 ? '#26B870' : '#D43352', fontWeight: 900 }}>
-                    {margemLiquida >= 0 ? '+' : ''}{margemLiquida.toFixed(1)}M Kz
+                {/* Margem bruta (após custo passivo, antes de custos op) */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'rgba(201,168,76,.08)', borderBottom: '1px solid rgba(201,168,76,.2)', borderTop: '1px solid rgba(201,168,76,.2)' }}>
+                  <div style={{ fontSize: 10, color: '#C9A84C', fontWeight: 700 }}>= MARGEM BRUTA</div>
+                  <div style={{ fontFamily: 'monospace', fontSize: 12, color: '#C9A84C', fontWeight: 800 }}>{margemLiquida >= 0 ? '+' : ''}{margemLiquida.toFixed(1)}M Kz</div>
+                </div>
+
+                {/* Custos operacionais */}
+                {custosOpMensaisM > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 12px', background: 'rgba(224,144,32,.05)', borderBottom: '1px solid rgba(38,184,112,.07)' }}>
+                    <div>
+                      <div style={{ fontSize: 9.5, color: '#E09020', fontWeight: 600 }}>(-) Custos Operacionais</div>
+                      <div style={{ fontSize: 8, color: '#364858' }}>{custosOpMensaisM}M Kz/mês × {prazo} meses</div>
+                    </div>
+                    <div style={{ fontFamily: 'monospace', fontSize: 11, color: '#E09020', fontWeight: 700 }}>− {custosOpPeriodo.toFixed(1)}M Kz</div>
+                  </div>
+                )}
+
+                {/* Resultado líquido final */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: resultadoFinal >= 0 ? 'rgba(38,184,112,.1)' : 'rgba(212,51,82,.1)' }}>
+                  <div>
+                    <div style={{ fontSize: 11, color: resultadoFinal >= 0 ? '#26B870' : '#D43352', fontWeight: 800 }}>RESULTADO LÍQUIDO</div>
+                    {custosOpMensaisM === 0 && <div style={{ fontSize: 8, color: '#364858', marginTop: 1 }}>Adicione custos operacionais para ver o resultado real</div>}
+                  </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: 14, color: resultadoFinal >= 0 ? '#26B870' : '#D43352', fontWeight: 900 }}>
+                    {resultadoFinal >= 0 ? '+' : ''}{resultadoFinal.toFixed(1)}M Kz
                   </div>
                 </div>
               </div>
 
               {/* Indicadores finais */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 7, marginTop: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 7, marginTop: 8 }}>
                 {[
                   { l: 'TIR Efectiva', v: `${tir.toFixed(1)}%`, c: '#E5EBF2' },
-                  { l: 'Spread Líquido', v: `${spread >= 0 ? '+' : ''}${spread.toFixed(1)} pp`, c: spread >= 0 ? '#26B870' : '#D43352' },
+                  { l: 'Spread (Activo − Passivo)', v: `${spread >= 0 ? '+' : ''}${spread.toFixed(1)} pp`, c: spread >= 0 ? '#26B870' : '#D43352' },
+                  { l: 'Resultado / Capital', v: `${capital > 0 ? ((resultadoFinal / capital) * 100).toFixed(1) : '—'}%`, c: resultadoFinal >= 0 ? '#C9A84C' : '#D43352' },
                   { l: 'Capital Recapitalizado (6m)', v: `${(capital * Math.pow(1 + taxa / 200, prazo / 6)).toFixed(1)}M Kz`, c: '#C9A84C' },
                 ].map((s, i) => (
                   <div key={i} style={{ padding: '7px 10px', background: 'rgba(7,9,12,.5)', border: '1px solid rgba(38,184,112,.1)', borderRadius: 6, textAlign: 'center' }}>
