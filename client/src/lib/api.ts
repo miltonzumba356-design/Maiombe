@@ -12,68 +12,74 @@ const api = axios.create({
   timeout: 14000,
 });
 
-// Detect whether a server GET response contains real data or is effectively empty
-function serverHasData(responseData: unknown): boolean {
-  const d = (responseData as any)?.data;
-  if (d == null) return false;
+// Registry: maps a per-request numeric ID → mock payload
+// Using a numeric ID avoids any WeakMap/reference issues across interceptors
+let _seq = 0;
+const _registry = new Map<number, unknown>();
 
-  // Array response (e.g. /contracts)
-  if (Array.isArray(d)) return d.length > 0;
-
-  if (typeof d === 'object') {
-    // { data: [...], total: N } — clients, alerts, funding, etc.
-    if (Array.isArray((d as any).data)) return (d as any).data.length > 0;
-
-    // KPI objects — treat as empty when all numeric values are 0
-    const nums = Object.values(d as object).filter(v => typeof v === 'number');
-    if (nums.length >= 3 && (nums as number[]).every(v => v === 0)) return false;
-
-    // Non-empty object with meaningful keys
-    return Object.keys(d as object).length > 0;
-  }
-
-  return false;
-}
-
-// ─── Request interceptor — attach token ───────────────────────────────────────
-api.interceptors.request.use((config) => {
+// ─── Request interceptor ──────────────────────────────────────────────────────
+// Attaches auth token.
+// For GET requests that have mock data: cancels the network call and stores
+// the mock in _registry so the error interceptor can return it instantly.
+api.interceptors.request.use(async (config) => {
   const token = localStorage.getItem('access_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
+
+  if ((config.method || 'get').toLowerCase() === 'get' && config.url) {
+    const { getMockResponse } = await import('../mocks/data');
+    const path = config.url.split('?')[0];
+    const mockData = getMockResponse(path);
+
+    if (mockData !== undefined) {
+      const id = ++_seq;
+      (config as any).__mid = id;
+      _registry.set(id, mockData);
+
+      // Cancel the real HTTP request immediately
+      const ctrl = new AbortController();
+      config.signal = ctrl.signal;
+      ctrl.abort();
+    }
+  }
+
   return config;
 });
 
 // ─── Response interceptor ─────────────────────────────────────────────────────
 api.interceptors.response.use(
-  // SUCCESS: if server returned empty data → swap in mock
-  async (response) => {
-    if ((response.config.method || '').toLowerCase() === 'get' && response.config.url) {
-      if (!serverHasData(response.data)) {
-        const { getMockResponse } = await import('../mocks/data');
-        const path = response.config.url.split('?')[0];
-        const mockData = getMockResponse(path);
-        if (mockData !== undefined) {
-          return { ...response, data: mockData };
-        }
+  // Successful responses pass through untouched
+  // (only mutations reach here — mocked GETs never resolve successfully)
+  (response) => response,
+
+  async (error: AxiosError) => {
+    const cfg = error.config as any;
+
+    // ── 1. Return mock for our intentionally cancelled GET requests ──────────
+    if (cfg?.__mid != null) {
+      const mockData = _registry.get(cfg.__mid);
+      _registry.delete(cfg.__mid);
+      if (mockData !== undefined) {
+        return {
+          data: mockData,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: cfg,
+        };
       }
     }
-    return response;
-  },
 
-  // ERROR: token refresh + mock fallback for network/5xx failures
-  async (error: AxiosError) => {
-    const original = error.config as typeof error.config & { _retry?: boolean };
-
-    // 1) Auto-refresh on 401
-    if (error.response?.status === 401 && !original?._retry) {
-      original._retry = true;
+    // ── 2. Auto-refresh expired token (401) ───────────────────────────────────
+    if (error.response?.status === 401 && !cfg?._retry) {
+      cfg._retry = true;
       const refreshToken = localStorage.getItem('refresh_token');
       if (refreshToken) {
         try {
           const { data } = await api.post('/auth/refresh', { refreshToken });
           localStorage.setItem('access_token', data.data.accessToken);
-          original.headers = original.headers ?? {};
-          original.headers.Authorization = `Bearer ${data.data.accessToken}`;
-          return api(original);
+          cfg.headers = cfg.headers ?? {};
+          cfg.headers.Authorization = `Bearer ${data.data.accessToken}`;
+          return api(cfg);
         } catch {
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
@@ -82,14 +88,20 @@ api.interceptors.response.use(
       }
     }
 
-    // 2) Mock fallback for GET when server is unreachable or returns 5xx
-    const method = (original?.method || '').toLowerCase();
+    // ── 3. Fallback mock for real network failures on GET (server down/5xx) ──
+    const method = (cfg?.method || '').toLowerCase();
     const isNetworkOrServer = !error.response || error.response.status >= 500;
-    if (method === 'get' && isNetworkOrServer && original?.url) {
+    if (method === 'get' && isNetworkOrServer && cfg?.url) {
       const { getMockResponse } = await import('../mocks/data');
-      const mockData = getMockResponse(original.url.split('?')[0]);
+      const mockData = getMockResponse(cfg.url.split('?')[0]);
       if (mockData !== undefined) {
-        return { data: mockData, status: 200, statusText: 'OK (mock)', headers: {}, config: original };
+        return {
+          data: mockData,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: cfg,
+        };
       }
     }
 
