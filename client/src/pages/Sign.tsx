@@ -4,7 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { CheckCircle, XCircle, FileText, User, Calendar, Loader2, ShieldCheck, AlertTriangle } from 'lucide-react';
 import axios from 'axios';
 
-const pubApi = axios.create({ baseURL: '/api/v1' });
+const pubApi = axios.create({ baseURL: import.meta.env.VITE_API_BASE_URL });
 
 function fmt(v: number) {
   return new Intl.NumberFormat('pt-AO', { maximumFractionDigits: 0 }).format(v);
