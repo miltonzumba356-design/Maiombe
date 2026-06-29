@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Search, ClipboardList, Mail, Download, ChevronDown, ChevronUp, ExternalLink, AlertTriangle } from 'lucide-react';
@@ -163,8 +163,8 @@ export default function Clients() {
         newLabel="+ Novo Cliente"
         onNew={() => setShowForm(prev => !prev)}
       />
-      <div style={{ padding: '22px 26px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 18 }}>
+      <div className="ct">
+        <div className="g-kpi4" style={{ gap: 12, marginBottom: 18 }}>
           <KpiCard label="Clientes Registados" value={total ?? clients.length} delta={clients.length > 0 ? `${clients.length} carregados` : 'Sem clientes'} deltaType="up" variant="gold" />
           <KpiCard label="Clientes em Dia" value={onTime} delta={clients.length > 0 ? `${Math.round(onTime / clients.length * 100)}% do total` : '—'} deltaType="up" variant="em" />
           <KpiCard label="Em Incumprimento" value={inDefault} delta={inDefault > 0 ? 'Acção activa' : 'Sem incumprimentos'} deltaType="dn" variant="cr" />
@@ -198,7 +198,7 @@ export default function Clients() {
                   <option value="entidade_mista">Entidade Mista</option>
                 </select>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 160px 180px 180px', gap: 10, marginBottom: 10 }}>
+              <div className="g-form4" style={{ gap: 10, marginBottom: 10 }}>
                 <input value={form.legal_representative} onChange={e => updateForm('legal_representative', e.target.value)} placeholder="Representante legal" />
                 <input value={form.province} onChange={e => updateForm('province', e.target.value)} placeholder="Província" />
                 <input value={form.email} onChange={e => updateForm('email', e.target.value)} placeholder="Email" type="email" />
@@ -218,7 +218,7 @@ export default function Clients() {
         {isLoading ? <LoadingSpinner /> : (
           <>
             {/* Client cards grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 12 }}>
+            <div className="g-cli3" style={{ gap: 12, marginBottom: 12 }}>
               {clients.map((c, idx) => {
                 const risk = RISK_CONFIG[c.risk_level] || RISK_CONFIG.baixo;
                 const grad = GRAD_COLORS[idx % GRAD_COLORS.length];

@@ -1,4 +1,4 @@
-﻿import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, CheckCircle, X, Loader2, MessageSquare, Send, Smartphone, Mail, Check } from 'lucide-react';
 import api from '@/lib/api';
@@ -263,7 +263,7 @@ export default function Collection() {
         </div>
       )}
       <TopBar title="Cobrança & Recuperação" breadcrumb="MAIOMBE / Cobrança" showNewButton={false} onExport={handleExport} />
-      <div style={{ padding: '22px 26px' }}>
+      <div className="ct">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 18 }}>
           <KpiCard label="A Vencer em 30 dias" value={due30.length} unit="contratos" delta={due30.length > 0 ? `${formatKz(due30.reduce((a, s) => a + s.total_installment, 0), true)} Kz` : '—'} deltaType="nt" variant="gold" />
           <KpiCard label="Cobrança Amigável" value={amigavel.length} unit="processos" delta={amigavel.length > 0 ? 'Em negociação' : 'Sem processos'} deltaType="nt" variant="am" />

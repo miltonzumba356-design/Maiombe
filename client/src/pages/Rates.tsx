@@ -345,7 +345,7 @@ export default function Rates() {
       <TopBar title="Taxas, Juros & Comissões" breadcrumb="MAIOMBE / Taxas"
         showNewButton newLabel="+ Novo Tipo de Mutuário" onExport={handleExport}
         onNew={() => { setShowAddForm(v => !v); setAddErr(''); }} />
-      <div style={{ padding: '22px 26px' }}>
+      <div className="ct">
 
         {/* ── KPI cards ──────────────────────────────────────────────── */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 12, marginBottom: 18 }}>

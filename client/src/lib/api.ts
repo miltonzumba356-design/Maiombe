@@ -18,11 +18,13 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor — auto-refresh
+// Response interceptor — auto-refresh + demo-mode mock fallback
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const original = error.config as typeof error.config & { _retry?: boolean };
+
+    // 1) Token refresh on 401
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true;
       const refreshToken = localStorage.getItem('refresh_token');
@@ -40,6 +42,18 @@ api.interceptors.response.use(
         }
       }
     }
+
+    // 2) Mock fallback for GET requests when API is unreachable (network error or 5xx)
+    const method = (original?.method || '').toLowerCase();
+    const isNetworkOrServer = !error.response || error.response.status >= 500;
+    if (method === 'get' && isNetworkOrServer && original?.url) {
+      const { getMockResponse } = await import('../mocks/data');
+      const mockData = getMockResponse(original.url);
+      if (mockData !== undefined) {
+        return { data: mockData, status: 200, statusText: 'OK', headers: {}, config: original };
+      }
+    }
+
     return Promise.reject(error);
   }
 );

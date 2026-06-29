@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Phone, Gavel, Clock, UserCheck } from 'lucide-react';
@@ -94,7 +94,7 @@ export default function Alerts() {
   return (
     <>
       <TopBar title="Alertas & Notificações" breadcrumb="MAIOMBE / Alertas" showNewButton={false} onExport={handleExport} />
-      <div style={{ padding: '22px 26px' }}>
+      <div className="ct">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 18 }}>
           <KpiCard label="Alertas Urgentes" value={kpis?.urgente ?? urgente.length} delta="Acção imediata" deltaType="dn" variant="cr" />
           <KpiCard label="Alertas de Atenção" value={kpis?.atencao ?? atencao.length} delta="Monitorização" deltaType="nt" variant="am" />

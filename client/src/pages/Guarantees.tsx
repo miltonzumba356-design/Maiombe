@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import api from '@/lib/api';
@@ -167,7 +167,7 @@ export default function Guarantees() {
     <>
       <TopBar title="Garantias" onExport={handleExport} breadcrumb="MAIOMBE / Garantias"
         showNewButton newLabel="+ Registar Garantia" onNew={() => setShowForm(p => !p)} />
-      <div style={{ padding: '22px 26px' }}>
+      <div className="ct">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 18 }}>
           <KpiCard label="Garantias Activas" value={kpis?.garantiasAtivas ?? guarantees.filter(g => g.status === 'activa').length} delta="Instrumentos registados" deltaType="up" variant="gold" />
           <KpiCard label="A Renovar (30 dias)" value={kpis?.aRenovar ?? 0} delta="Alertas emitidos" deltaType="nt" variant="am" />

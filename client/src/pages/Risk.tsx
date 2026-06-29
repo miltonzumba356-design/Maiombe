@@ -1,4 +1,4 @@
-﻿import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import api from '@/lib/api';
@@ -259,7 +259,7 @@ export default function Risk() {
     <>
       <TopBar title="Gestão de Risco" onExport={handleExport} breadcrumb="MAIOMBE / Gestão de Risco"
         showNewButton newLabel="+ Nova Avaliação" onNew={() => setShowForm(p => !p)} />
-      <div style={{ padding: '22px 26px' }}>
+      <div className="ct">
         {showForm && (
           <Panel title="Nova Avaliação de Risco" style={{ marginBottom: 12 }}>
             <form onSubmit={submitAssessment} style={{ padding: 14 }}>

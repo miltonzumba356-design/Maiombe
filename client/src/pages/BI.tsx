@@ -1,4 +1,4 @@
-﻿import { useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import TopBar from '@/components/layout/TopBar';
 import Panel from '@/components/ui/Panel';
@@ -228,7 +228,7 @@ export default function BI() {
   return (
     <>
       <TopBar title="Business Intelligence & Analytics" onExport={handleExport} breadcrumb="MAIOMBE / BI & Analytics" showNewButton={false} />
-      <div style={{ padding: '22px 26px' }}>
+      <div className="ct">
         {isLoading ? <LoadingSpinner /> : (
           <>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>

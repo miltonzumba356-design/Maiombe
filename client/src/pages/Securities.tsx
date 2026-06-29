@@ -1,4 +1,4 @@
-﻿import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Save } from 'lucide-react';
 import api from '@/lib/api';
@@ -190,7 +190,7 @@ export default function Securities() {
     <>
       <TopBar title="Títulos da Dívida Pública — OT & BT" onExport={handleExport} breadcrumb="MAIOMBE / OT & BT"
         showNewButton newLabel="+ Registar Entrega" onNew={() => setShowForm(p => !p)} />
-      <div style={{ padding: '22px 26px' }}>
+      <div className="ct">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 18 }}>
           <KpiCard label="OT em Carteira (facial)" value={kpis?.otCarteira != null ? formatKz(kpis.otCarteira / 1e9, false) : '—'} unit="Mil M Kz" delta={`${otList.length} séries`} deltaType="nt" variant="gold" />
           <KpiCard label="BT em Carteira (mercado)" value={kpis?.btCarteira != null ? formatKz(kpis.btCarteira / 1e6, false) : '—'} unit="M Kz" delta={`${btList.length} emissões`} deltaType="nt" variant="em" />

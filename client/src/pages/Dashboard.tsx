@@ -64,10 +64,10 @@ export default function Dashboard() {
   return (
     <>
       <TopBar title="Dashboard Executivo" />
-      <div style={{ padding: '22px 26px' }}>
+      <div className="ct">
 
         {/* KPI Grid 4 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 18 }}>
+        <div className="g-kpi4" style={{ gap: 12, marginBottom: 18 }}>
           <KpiCard label="Capital Captado" value={kpis?.capitalCaptado != null ? formatKz(kpis.capitalCaptado / 1e9, false) : '—'} unit="Mil M Kz" delta={kpis?.utilizacaoCapital != null ? `util. ${kpis.utilizacaoCapital}%` : '—'} deltaType="up" variant="gold" />
           <KpiCard label="Capital Aplicado" value={kpis?.capitalAplicado != null ? formatKz(kpis.capitalAplicado / 1e9, false) : '—'} unit="Mil M Kz" delta={kpis?.utilizacaoCapital != null ? `util. ${kpis.utilizacaoCapital}%` : '—'} deltaType="up" variant="em" />
           <KpiCard label="Crédito Vencido" value={kpis?.creditoVencido != null ? formatKz(kpis.creditoVencido / 1e9, false) : '—'} unit="Mil M Kz" delta={kpis?.nplRatio != null ? `NPL ${kpis.nplRatio}%` : '—'} deltaType="dn" variant="cr" />
@@ -75,7 +75,7 @@ export default function Dashboard() {
         </div>
 
         {/* KPI Grid 6 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 10, marginBottom: 18 }}>
+        <div className="g-kpi6" style={{ gap: 10, marginBottom: 18 }}>
           <KpiCard label="Contratos" value={kpis?.contratos?.total ?? '—'} small sub={`${kpis?.contratos?.em_vigor ?? 0} em vigor`} variant="gold" />
           <KpiCard label="Clientes" value={kpis?.clientes ?? '—'} small sub="activos" variant="gold" />
           <KpiCard label="Recuperação" value={kpis?.taxaRecuperacao != null ? `${kpis.taxaRecuperacao}%` : '—'} small sub="taxa de recuperação" variant="em" />
@@ -85,7 +85,7 @@ export default function Dashboard() {
         </div>
 
         {/* Charts row */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 12, marginBottom: 14 }}>
+        <div className="g-charts" style={{ gap: 12, marginBottom: 14 }}>
           <Panel title="Evolução da Carteira 2025–2026" tag="12 Meses">
             <div style={{ padding: 16 }}><div style={{ height: 220 }}><Line data={portfolioChart} options={CHART_OPTS} /></div></div>
           </Panel>
@@ -97,7 +97,7 @@ export default function Dashboard() {
         </div>
 
         {/* Risk Matrix + Fontes + Alertas */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 14 }}>
+        <div className="g-3col" style={{ gap: 12, marginBottom: 14 }}>
           <Panel title="Matriz de Risco" tag="Análise de Risco">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, padding: 13 }}>
               {[
@@ -172,7 +172,7 @@ export default function Dashboard() {
         </div>
 
         {/* Contracts Table + Health Score */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12, marginBottom: 14 }}>
+        <div className="g-2-1" style={{ gap: 12, marginBottom: 14 }}>
           <Panel title="Carteira de Crédito — Contratos Activos"
             actions={<button className="btn btn-outline" style={{ padding: '4px 9px', fontSize: 8.5 }}>Ver Todos</button>}
           >
@@ -278,7 +278,7 @@ export default function Dashboard() {
 
         {/* Cronograma 2026 */}
         <Panel title="Cronograma Consolidado 2026" tag="Activo + Passivo">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12,1fr)', gap: 5, padding: 12 }}>
+          <div className="g-mo12" style={{ gap: 5, padding: 12 }}>
             {(cronograma || months.map(m => ({ month: m, value: 0, status: 'Sem dados' }))).map((m: { month: string; value: number; status: string }, i: number) => (
               <div key={i} style={{
                 padding: 8, borderRadius: 4, textAlign: 'center',

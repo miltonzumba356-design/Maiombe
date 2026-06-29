@@ -1,4 +1,4 @@
-﻿import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import api from '@/lib/api';
@@ -198,7 +198,7 @@ export default function Portfolio() {
   return (
     <>
       <TopBar title="Carteira de Crédito" breadcrumb="MAIOMBE / Carteira de Crédito" onExport={handleExport} />
-      <div style={{ padding: '22px 26px' }}>
+      <div className="ct">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 18 }}>
           <KpiCard label="Crédito Concedido Total" value={totalAmount > 0 ? (totalAmount / 1e9).toFixed(1) : '—'} unit="Mil M Kz" delta={`${total} contratos`} deltaType="up" variant="gold" />
           <KpiCard label="Em Cobrança Regular" value={emCursoAmount > 0 ? (emCursoAmount / 1e9).toFixed(1) : '—'} unit="Mil M Kz" delta={`${emCurso.length} contratos`} deltaType="up" variant="em" />

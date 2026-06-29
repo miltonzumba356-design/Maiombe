@@ -219,7 +219,7 @@ export default function Automations() {
   return (
     <>
       <TopBar title="Automação de Notificações" breadcrumb="MAIOMBE / Automação" />
-      <div style={{ padding: '22px 26px' }}>
+      <div className="ct">
 
         {/* Erros de mutação */}
         {mutationError && (

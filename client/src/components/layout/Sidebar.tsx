@@ -9,6 +9,7 @@ import { ROLE_LABELS, canAccess, type Module } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { useState, useEffect } from 'react';
+import { useSidebar } from '@/contexts/SidebarContext';
 
 interface SubItem {
   to: string;       // pathname usado para detecção de estado activo
@@ -39,11 +40,11 @@ const NAV_ITEMS: NavItem[] = [
   { sectionLabel: 'Núcleo Operacional',  to: '/taxas',     label: 'Taxas, Juros & Comissões',    icon: <Percent size={13} />,         module: 'taxas' },
   { sectionLabel: 'Gestão do Passivo',   to: '/passivo',   label: 'Gestão do Passivo',           icon: <TrendingDown size={13} />,    module: 'passivo' },
   { sectionLabel: 'Gestão do Passivo',   to: '/fontes',    label: 'Fontes de Financiamento',     icon: <Building2 size={13} />,       module: 'fontes' },
-  { sectionLabel: 'Gestão do Passivo',   to: '/capital-gestao', label: 'Capital de Gestão',      icon: <Landmark size={13} />,        module: 'passivo' },
+  { sectionLabel: 'Gestão do Passivo',   to: '/capital-gestao', label: 'Gestão de Capital',      icon: <Landmark size={13} />,        module: 'passivo' },
   { sectionLabel: 'Análise & Risco',     to: '/risco',     label: 'Gestão de Risco',             icon: <ShieldAlert size={13} />,     module: 'risco' },
   { sectionLabel: 'Análise & Risco',     to: '/garantias', label: 'Garantias',                   icon: <Shield size={13} />,          module: 'garantias' },
   { sectionLabel: 'Análise & Risco',     to: '/cobranca',  label: 'Cobrança & Recuperação',      icon: <RefreshCw size={13} />,       module: 'cobranca' },
-  { sectionLabel: 'Entidades & Crédito', to: '/clientes',  label: 'Crédito Cedido — Clientes',   icon: <Users size={13} />,           module: 'clientes' },
+  { sectionLabel: 'Entidades & Crédito', to: '/clientes',  label: 'Gestão de Cliente',           icon: <Users size={13} />,           module: 'clientes' },
   { sectionLabel: 'Entidades & Crédito', to: '/projetos',  label: 'Projetos Financiados',        icon: <FolderOpen size={13} />,      module: 'projetos' },
   { sectionLabel: 'Entidades & Crédito', to: '/titulos',   label: 'Títulos da Dívida Pública',   icon: <Landmark size={13} />,        module: 'titulos' },
   { sectionLabel: 'Inteligência',        to: '/bi',          label: 'Business Intelligence',       icon: <BarChart3 size={13} />,       module: 'bi' },
@@ -55,6 +56,7 @@ export default function Sidebar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { isOpen, isMobile } = useSidebar();
 
   const { data: alertsData } = useQuery({
     queryKey: ['alerts-count'],
@@ -117,6 +119,8 @@ export default function Sidebar() {
       background: 'linear-gradient(180deg, #0C1B0F, #060907)',
       borderRight: '1px solid rgba(201,168,76,0.16)',
       display: 'flex', flexDirection: 'column', overflowY: 'auto',
+      transition: 'transform 0.25s ease',
+      transform: isMobile && !isOpen ? 'translateX(-264px)' : 'translateX(0)',
     }}
       className="[&::-webkit-scrollbar]:w-[2px] [&::-webkit-scrollbar-thumb]:bg-sl2"
     >

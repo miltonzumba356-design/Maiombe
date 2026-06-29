@@ -131,7 +131,7 @@ export default function ClientDetail() {
         breadcrumb={`MAIOMBE / Clientes / ${client.name}`}
         showNewButton={false}
       />
-      <div style={{ padding: '22px 26px' }}>
+      <div className="ct">
 
         {/* Back button */}
         <button onClick={() => navigate('/clientes')} style={{

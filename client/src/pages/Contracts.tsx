@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown, ChevronUp, CheckCircle, Loader2, Send, MessageSquare, Mail, PenLine, X, Smartphone, Check, Download, Phone, AlertTriangle } from 'lucide-react';
@@ -153,7 +153,7 @@ export default function Contracts() {
   return (
     <>
       <TopBar title="Gestão de Contratos" breadcrumb="MAIOMBE / Gestão de Contratos" onExport={handleExport} />
-      <div style={{ padding: '22px 26px' }}>
+      <div className="ct">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 18 }}>
           <KpiCard label="Contratos Activos" value={ativos} delta={ativos > 0 ? `${ativos} em vigor` : 'Sem contratos'} deltaType="up" variant="gold" />
           <KpiCard label="Em Formalização" value={formalizacao.length} delta="Aguardam assinatura" deltaType="nt" variant="am" />

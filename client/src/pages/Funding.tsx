@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Building2, User, Landmark, Users, Loader2 } from 'lucide-react';
 import api from '@/lib/api';
@@ -120,7 +120,7 @@ export default function Funding() {
     <>
       <TopBar title="Fontes de Financiamento" onExport={handleExport} breadcrumb="MAIOMBE / Fontes de Financiamento"
         showNewButton newLabel="+ Nova Fonte" onNew={() => setShowForm(p => !p)} />
-      <div style={{ padding: '22px 26px' }}>
+      <div className="ct">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 18 }}>
           <KpiCard label="Total Captado" value={kpis?.totalCaptado != null ? formatKz(kpis.totalCaptado / 1e9, false) : '—'} unit="Mil M Kz" delta={`${sources.length} fontes activas`} deltaType="up" variant="gold" />
           <KpiCard label="Linhas Bancárias" value={kpis?.linhasBancarias != null ? formatKz(kpis.linhasBancarias / 1e9, false) : '—'} unit="Mil M Kz" delta={`${kpis?.numBancos ?? bankSources.length} bancos`} deltaType="nt" variant="em" />

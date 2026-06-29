@@ -183,7 +183,7 @@ export default function ContractDraft() {
   return (
     <>
       <TopBar title="Elaboração de Contratos" breadcrumb="MAIOMBE / Elaboração" showNewButton={false} />
-      <div style={{ padding: '22px 26px' }}>
+      <div className="ct">
 
         {/* Legal notice */}
         <div style={{ background:'rgba(201,168,76,.06)', border:'1px solid rgba(201,168,76,.18)', borderRadius:9, padding:'10px 14px', marginBottom:14 }}>

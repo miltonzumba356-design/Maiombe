@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Download, Plus } from 'lucide-react';
+import { Bell, Download, Menu } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
+import { useSidebar } from '@/contexts/SidebarContext';
 
 interface TopBarProps {
   title: string;
@@ -16,6 +17,7 @@ interface TopBarProps {
 export default function TopBar({ title, breadcrumb, showNewButton = true, onNew, newLabel = '+ Nova Operação', onExport }: TopBarProps) {
   const navigate = useNavigate();
   const [clock, setClock] = useState('');
+  const { toggle, isMobile } = useSidebar();
 
   const { data: alertsData } = useQuery({
     queryKey: ['alerts-count-topbar'],
@@ -41,32 +43,73 @@ export default function TopBar({ title, breadcrumb, showNewButton = true, onNew,
   return (
     <>
       <div style={{
-        position: 'sticky', top: 0, zIndex: 90, display: 'flex', alignItems: 'center', gap: 12,
-        padding: '13px 26px', background: 'rgba(7,9,12,.9)', backdropFilter: 'blur(18px)',
+        position: 'sticky', top: 0, zIndex: 90, display: 'flex', alignItems: 'center', gap: 10,
+        padding: isMobile ? '11px 14px' : '13px 26px',
+        background: 'rgba(7,9,12,.9)', backdropFilter: 'blur(18px)',
         borderBottom: '1px solid rgba(201,168,76,0.16)',
       }}>
-        <div style={{ flex: 1 }}>
-          <h1 style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{title}</h1>
-          <div style={{ fontSize: 9.5, color: '#7888A0', marginTop: 1 }}>
-            {breadcrumb || `MAIOMBE / ${title} · ${new Date().toLocaleDateString('pt-AO', { month: 'short', year: 'numeric' })}`}
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+        {/* Hamburger — mobile only */}
+        {isMobile && (
           <button
-            className="btn btn-outline"
-            style={{ gap: 5, opacity: onExport ? 1 : 0.4, cursor: onExport ? 'pointer' : 'default' }}
-            onClick={onExport}
-            disabled={!onExport}
-            title={onExport ? 'Exportar dados em CSV' : 'Sem dados para exportar'}
+            onClick={toggle}
+            style={{
+              width: 32, height: 32, borderRadius: 6, background: 'rgba(11,25,16,0.9)',
+              border: '1px solid rgba(201,168,76,0.2)', display: 'flex', alignItems: 'center',
+              justifyContent: 'center', cursor: 'pointer', flexShrink: 0,
+            }}
+            aria-label="Abrir menu"
           >
-            <Download size={11} /> Exportar CSV
+            <Menu size={15} color="#C9A84C" />
           </button>
-          {showNewButton && (
+        )}
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h1 style={{ fontSize: isMobile ? 13 : 16, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{title}</h1>
+          {!isMobile && (
+            <div style={{ fontSize: 9.5, color: '#7888A0', marginTop: 1 }}>
+              {breadcrumb || `MAIOMBE / ${title} · ${new Date().toLocaleDateString('pt-AO', { month: 'short', year: 'numeric' })}`}
+            </div>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          {!isMobile && (
+            <button
+              className="btn btn-outline"
+              style={{ gap: 5, opacity: onExport ? 1 : 0.4, cursor: onExport ? 'pointer' : 'default' }}
+              onClick={onExport}
+              disabled={!onExport}
+              title={onExport ? 'Exportar dados em CSV' : 'Sem dados para exportar'}
+            >
+              <Download size={11} /> Exportar CSV
+            </button>
+          )}
+          {isMobile && onExport && (
+            <button
+              className="btn btn-outline"
+              style={{ padding: '5px 8px' }}
+              onClick={onExport}
+              title="Exportar CSV"
+            >
+              <Download size={12} />
+            </button>
+          )}
+          {showNewButton && !isMobile && (
             <button
               className="btn btn-gold"
               onClick={onNew || (() => navigate('/elaboracao'))}
             >
               {newLabel}
+            </button>
+          )}
+          {showNewButton && isMobile && (
+            <button
+              className="btn btn-gold"
+              style={{ padding: '5px 10px', fontSize: 9.5 }}
+              onClick={onNew || (() => navigate('/elaboracao'))}
+              title={newLabel}
+            >
+              +
             </button>
           )}
           <button

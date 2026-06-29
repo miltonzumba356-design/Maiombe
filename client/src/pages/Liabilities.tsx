@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Landmark, BarChart2, Briefcase, BarChart, Pencil, AlertTriangle, Scale, Loader2 } from 'lucide-react';
 import api from '@/lib/api';
@@ -234,7 +234,7 @@ export default function Liabilities() {
     <>
       <TopBar title="Gestão do Passivo Financeiro" onExport={handleExport} breadcrumb="MAIOMBE / Gestão do Passivo"
         showNewButton newLabel="+ Registar Obrigação" onNew={() => setShowForm(p => !p)} />
-      <div style={{ padding: '22px 26px' }}>
+      <div className="ct">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 18 }}>
           <KpiCard label="Total Passivo Financeiro" value={kpis?.totalPassivo != null ? formatKz(kpis.totalPassivo / 1e9, false) : '—'} unit="Mil M Kz" delta={`${kpis?.fontesAtivas ?? liabilities.length} fontes activas`} deltaType="nt" variant="gold" />
           <KpiCard label="Reembolsos Próx. 30 dias" value={kpis?.reembolsos30d != null ? formatKz(kpis.reembolsos30d / 1e9, false) : '—'} unit="Mil M Kz" delta="Próximos 30 dias" deltaType="dn" variant="cr" />

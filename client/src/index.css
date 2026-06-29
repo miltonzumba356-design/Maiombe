@@ -281,3 +281,53 @@ body::before {
   0%,100% { box-shadow: none; }
   50% { box-shadow: 0 0 12px rgba(212,51,82,.28); }
 }
+
+/* ─── Responsive grid helpers ─────────────────────────────────────────────── */
+.g-kpi4  { display: grid; grid-template-columns: repeat(4,1fr); }
+.g-kpi6  { display: grid; grid-template-columns: repeat(6,1fr); }
+.g-charts { display: grid; grid-template-columns: 1.4fr 1fr; }
+.g-3col  { display: grid; grid-template-columns: repeat(3,1fr); }
+.g-2-1   { display: grid; grid-template-columns: 2fr 1fr; }
+.g-mo12  { display: grid; grid-template-columns: repeat(12,1fr); }
+.g-cli3  { display: grid; grid-template-columns: repeat(3,1fr); }
+.g-form4 { display: grid; grid-template-columns: 1fr 160px 180px 180px; }
+
+/* Overflow-safe table wrapper */
+.tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ─── Tablet (≤ 1180px) ───────────────────────────────────────────────────── */
+@media (max-width: 1180px) {
+  .g-kpi6  { grid-template-columns: repeat(3,1fr); }
+  .g-3col  { grid-template-columns: repeat(2,1fr); }
+}
+
+/* ─── Tablet small / portrait (≤ 900px) ─────────────────────────────────── */
+@media (max-width: 900px) {
+  .g-kpi4  { grid-template-columns: repeat(2,1fr); }
+  .g-charts { grid-template-columns: 1fr; }
+  .g-2-1   { grid-template-columns: 1fr; }
+}
+
+/* ─── Mobile (≤ 767px) ────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .ct { padding: 12px 14px; }
+
+  .g-kpi4  { grid-template-columns: repeat(2,1fr); }
+  .g-kpi6  { grid-template-columns: repeat(3,1fr); }
+  .g-charts { grid-template-columns: 1fr; }
+  .g-3col  { grid-template-columns: 1fr; }
+  .g-2-1   { grid-template-columns: 1fr; }
+  .g-mo12  { grid-template-columns: repeat(4,1fr); }
+  .g-cli3  { grid-template-columns: repeat(2,1fr); }
+  .g-form4 { grid-template-columns: 1fr 1fr; }
+
+  .panel { margin-bottom: 10px; }
+}
+
+/* ─── Very small mobile (≤ 420px) ─────────────────────────────────────────── */
+@media (max-width: 420px) {
+  .g-kpi6  { grid-template-columns: repeat(2,1fr); }
+  .g-cli3  { grid-template-columns: 1fr; }
+  .g-mo12  { grid-template-columns: repeat(3,1fr); }
+  .g-form4 { grid-template-columns: 1fr; }
+}

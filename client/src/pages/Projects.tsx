@@ -1,4 +1,4 @@
-﻿import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import api from '@/lib/api';
@@ -185,7 +185,7 @@ export default function Projects() {
     <>
       <TopBar title="Projetos Financiados" onExport={handleExport} breadcrumb="MAIOMBE / Projetos"
         showNewButton newLabel="+ Registar Projecto" onNew={() => setShowForm(p => !p)} />
-      <div style={{ padding: '22px 26px' }}>
+      <div className="ct">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 18 }}>
           <KpiCard label="Projectos em Carteira" value={kpis?.total ?? projects.length} delta="Total activos" deltaType="up" variant="gold" />
           <KpiCard label="Em Execução" value={kpis?.emExecucao ?? 0} delta={kpis ? `${Math.round((kpis.emExecucao / kpis.total) * 100)}%` : '—'} deltaType="up" variant="em" />

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Landmark, Users, FileText, DollarSign } from 'lucide-react';
@@ -139,7 +139,7 @@ export default function ManagementCapital() {
         newLabel="+ Registar Entrada"
         onNew={() => setShowForm(!showForm)}
       />
-      <div style={{ padding: '22px 26px' }}>
+      <div className="ct">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 18 }}>
           <KpiCard label="Total de Fundos Recebidos" value={formatKz(totalCapital, true)} unit="Kz" delta={`${listData.length} aportes`} deltaType="up" variant="gold" />
           <KpiCard label="Aporte de Sócios" value={formatKz(sociasAmt, true)} unit="Kz" delta="Interno" deltaType="nt" variant="em" />
